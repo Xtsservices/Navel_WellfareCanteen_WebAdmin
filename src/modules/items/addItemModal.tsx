@@ -350,6 +350,9 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
                 <Option value="grams">grams</Option>
                 <Option value="ml">ml</Option>
                 <Option value="pieces">pieces</Option>
+                <Option value="cups">cups</Option>
+                <Option value="packets">packets</Option>
+                <Option value="plates">plates</Option>
               </Select>
             </Form.Item>
           </Col>

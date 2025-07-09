@@ -37,7 +37,44 @@ import MyCart from "./userModule/cart/myCart";
 import PaymentMethod from "./userModule/payment/paymentMethod";
 import MyOrders from "./userModule/orders/MyOrders";
 import Wallet from "./userModule/wallet/wallet";
+import { useEffect, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { AppState } from "./store/storeTypes";
+import { getCurrentUserData } from "./auth/apiService";
+
 const App = () => {
+  const hasFetchedUser = useRef(false);
+  const dispatch = useDispatch();
+
+  const currentUserData = useSelector((state: AppState) => state.currentUserData || '');
+
+    const getCurrentUser = async () => {
+    try {
+      const userData = await getCurrentUserData.getUserData();
+      console.log("userData====",userData)
+      if (userData.data) {
+      console.log("userData====dispatch",userData.data)
+
+        dispatch({
+          type: "currentUserData",
+          payload: userData.data,
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  };
+
+
+  useEffect(() => {
+    if (!currentUserData && !hasFetchedUser.current) {
+      hasFetchedUser.current = true; // ✅ Prevent future fetch attempts
+      getCurrentUser();
+    }
+  }, [currentUserData]);
+
+
+
   return (
     <Router>
       <Routes>

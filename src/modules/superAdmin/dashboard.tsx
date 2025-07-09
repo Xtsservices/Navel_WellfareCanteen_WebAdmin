@@ -48,7 +48,7 @@ const SuperAdminDashboard: React.FC = () => {
     { title: "Canteens", image: canteenImg },
     { title: "Items", image: itemsImage },
     { title: "Menu", image: menuImage },
-    { title: "Orders", image: ordersImage },
+    // { title: "Orders", image: ordersImage },
   ];
 
   return (
@@ -95,7 +95,7 @@ const SuperAdminDashboard: React.FC = () => {
 
         <Row gutter={[16, 16]}>
           {featureCards.map((feature, index) => (
-            <Col xs={24} sm={12} md={6} key={index}>
+            <Col xs={24} sm={12} md={8} key={index}>
               <Space
                 direction="vertical"
                 style={{ width: "100%", textAlign: "center" }}

@@ -162,7 +162,14 @@ const [showItemError, setShowItemError] = useState(false);
     onSuccess();
     resetForm();
   } catch (error) {
-    toastError("Failed to create menu");
+    if (error && typeof error === "object" && "response" in error) {
+      // @ts-ignore
+      console.log("errorboom", error.response?.data?.message);
+    toastError((error as any).response?.data?.message);
+
+    }else{
+      toastError("Failed to create menu");
+    }
     console.error("Error creating menu:", error);
   } finally {
     setSubmitting(false);

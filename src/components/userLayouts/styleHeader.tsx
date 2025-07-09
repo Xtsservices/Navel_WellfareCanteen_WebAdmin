@@ -89,13 +89,13 @@ const StyledHeader: React.FC<HeaderProps> = ({
 
   const profileMenu = (
     <Menu style={{ width: 200 }}>
-      <Menu.Item
+      {/* <Menu.Item
         key="profile"
         icon={<ProfileOutlined />}
         onClick={() => handleNavigation("/profile")}
       >
         Profile
-      </Menu.Item>
+      </Menu.Item> */}
 
           <Menu.Item
             key="help"

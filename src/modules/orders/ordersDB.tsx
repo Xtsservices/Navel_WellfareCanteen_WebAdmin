@@ -1,12 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Card, Row, Col, Button } from "antd";
-import {
-  DollarCircleOutlined,
-  ShoppingCartOutlined,
-  CheckCircleOutlined,
-  CloseCircleOutlined,
-  BankOutlined,
-} from "@ant-design/icons";
+import { Card, Row, Col, Table, Empty } from "antd";
+import { DollarCircleOutlined, ShoppingCartOutlined, CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import BackHeader from "../../components/common/backHeader";
 import { useParams } from "react-router-dom";
 import { adminDashboardService } from "../../auth/apiService";
@@ -90,75 +84,170 @@ const StatCard: React.FC<StatCardProps> = ({ icon, value, title }) => {
   );
 };
 
+interface Order {
+  createdAt: number;
+  updatedAt: number;
+  id: number;
+  orderDate: number;
+  orderNo: string;
+  totalAmount: number;
+  status: string;
+  canteenId: number;
+  menuConfigurationId: number;
+  orderCanteen: { id: number; canteenName: string };
+  orderItems: Array<{
+    id: number;
+    quantity: number;
+    price: number;
+    total: number;
+    itemId: number;
+    menuItemItem: {
+      id: number;
+      name: string;
+      description: string;
+      type: string;
+      status: string;
+      quantity: number;
+      quantityUnit: string;
+    };
+  }>;
+  menuName: string;
+}
+
+interface TableData {
+  key: string;
+  itemName: string;
+  quantity: number;
+  quantityUnit: string;
+}
+
 const OrdersDashboard: React.FC = () => {
   const route = useParams();
-  const [, setOrders] = useState([]);
-  const [, setLoading] = useState(false);
-
-  const [countsData, setCountsData] = React.useState<any>({});
-
-  useEffect(() => {
-    adminDashboardService
-      .getDashboardMainCounts()
-      .then((response) => {
-        setCountsData(response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }, []);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(false);
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  const [selectedDate, setSelectedDate] = useState<string>(`${year}-${month}-${day}`);
 
   useEffect(() => {
     fetchOrders();
-  }, []);
+  }, [selectedDate]);
 
   const fetchOrders = async () => {
     try {
       setLoading(true);
       let response;
+      const formattedDate = selectedDate.replace(/-/g, '/'); // Convert YYYY-MM-DD to YYYY/MM/DD
       if (route?.canteenId) {
         response = await adminDashboardService.getTotalOrders(
-          parseInt(route?.canteenId)
+          parseInt(route?.canteenId),
+          { orderDate: formattedDate }
         );
       } else {
-        response = await adminDashboardService.getTotalOrders();
+        response = await adminDashboardService.getTotalOrders(
+          undefined,
+          { orderDate: formattedDate }
+        );
       }
 
       if (response && response?.data) {
         setOrders(response.data);
       }
     } catch (error) {
-      console.error("Error fetching menus:", error);
+      console.error("Error fetching orders:", error);
     } finally {
       setLoading(false);
     }
   };
 
+  // Date change handler
+  const handleDateChange = (date: string) => {
+    setSelectedDate(date);
+  };
+
+  // Group orders by menuName, summing quantities by itemName and collecting quantityUnit (excluding canceled orders)
+  const groupedByMenu = orders.reduce((acc, order) => {
+    if (order.status === "canceled") {
+      return acc; // Skip canceled orders
+    }
+    const menuName = order.menuName; // Use menuName directly without index
+    
+    if (!acc[menuName]) {
+      acc[menuName] = {};
+    }
+    
+    order.orderItems.forEach(item => {
+      const itemName = item.menuItemItem.name;
+      const quantityUnit = item.menuItemItem.quantityUnit;
+      if (!acc[menuName][itemName]) {
+        acc[menuName][itemName] = { quantity: 0, quantityUnit };
+      }
+      acc[menuName][itemName].quantity += item.quantity;
+    });
+    
+    return acc;
+  }, {} as Record<string, Record<string, { quantity: number; quantityUnit: string }>>);
+
+  // Prepare table data for each menuName
+  const getTableData = (menuName: string) => {
+    return Object.entries(groupedByMenu[menuName] || {}).map(([itemName, { quantity, quantityUnit }], index) => ({
+      key: `${menuName}-${itemName}-${index}`,
+      itemName,
+      quantity,
+      quantityUnit,
+    }));
+  };
+
+  // Table columns
+  const columns = [
+    {
+      title: "Item Name",
+      dataIndex: "itemName",
+      key: "itemName",
+      render: (text: string) => <span style={{ fontSize: "16px" }}>{text}</span>,
+    },
+    {
+      title: "Quantity",
+      dataIndex: "quantity",
+      key: "quantity",
+      render: (text: number) => <span style={{ fontSize: "16px" }}>{text}</span>,
+    },
+    {
+      title: "Unit",
+      dataIndex: "quantityUnit",
+      key: "quantityUnit",
+      render: (text: string) => <span style={{ fontSize: "16px" }}>{text}</span>,
+    },
+  ];
+
+  // Calculate stats from orders
+  const totalRevenue = orders.reduce((sum, order) => sum + order.totalAmount, 0);
+  const totalOrders = orders.length;
+  const totalDelivered = orders.filter(order => order.status === "delivered").length;
+  const totalCanceled = orders.filter(order => order.status === "canceled").length;
+
   const statCards = [
     {
       icon: <DollarCircleOutlined />,
-      value: `₹ ${countsData?.totalAmount || 0}`,
+      value: `₹ ${totalRevenue}`,
       title: "Total Revenue",
     },
     {
       icon: <ShoppingCartOutlined />,
-      value: `${countsData?.totalOrders || 0}`,
+      value: totalOrders,
       title: "Total Orders",
     },
     {
       icon: <CheckCircleOutlined />,
-      value: `${countsData?.completedOrders || 0}`,
+      value: totalDelivered,
       title: "Total Delivered",
     },
     {
       icon: <CloseCircleOutlined />,
-      value: `${countsData?.cancelledOrders || 0}`,
+      value: totalCanceled,
       title: "Total Canceled",
-    },
-    {
-      icon: <BankOutlined />,
-      value: `${countsData?.totalCanteens || 0}`,
-      title: "Total Canteens",
     },
   ];
 
@@ -187,6 +276,28 @@ const OrdersDashboard: React.FC = () => {
         }}
       />
       
+      {/* Date Filter */}
+      <Row style={{ marginBottom: "clamp(12px, 3vw, 20px)" }} justify="end">
+        <Col>
+          <input
+            type="date"
+            style={{
+              alignSelf: "flex-end",
+              borderRadius: "12px",
+              background: "#F6F6F6",
+              padding: "5px",
+              color: "#1977f3",
+              width: "130px",
+              border: "1px solid #d9d9d9",
+              marginTop: 8,
+              fontSize: "14px",
+            }}
+            value={selectedDate}
+            onChange={(e) => handleDateChange(e.target.value)}
+          />
+        </Col>
+      </Row>
+
       {/* Stats Grid */}
       <Row 
         gutter={[
@@ -198,12 +309,10 @@ const OrdersDashboard: React.FC = () => {
         {statCards.map((card, index) => (
           <Col 
             key={index}
-            xs={12} // 2 cards per row on mobile
-            sm={12} // 2 cards per row on small tablets
-            md={8}  // 3 cards per row on medium screens
-            lg={6}  // 4 cards per row on large screens
-            xl={4}  // 5 cards per row on extra large screens (original layout)
-            xxl={4}
+            xs={12}
+            sm={12}
+            md={8}
+            lg={6}
           >
             <StatCard
               icon={card.icon}
@@ -214,39 +323,25 @@ const OrdersDashboard: React.FC = () => {
         ))}
       </Row>
 
-      {/* Action Button
-      <Row>
-        <Col span={24}>
-          <Button
-            type="default"
-            size="large"
-            block
-            style={{
-              height: "clamp(50px, 12vw, 60px)",
-              fontSize: "clamp(14px, 4vw, 18px)",
-              borderRadius: "8px",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-              backgroundColor: "#fff",
-              border: "1px solid #d9d9d9",
-              fontWeight: "500",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              transition: "all 0.3s ease",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = "#1890ff";
-              e.currentTarget.style.color = "#1890ff";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = "#d9d9d9";
-              e.currentTarget.style.color = "rgba(0, 0, 0, 0.85)";
-            }}
-          >
-            View Item Wise List
-          </Button>
-        </Col>
-      </Row> */}
+      {/* Orders Table */}
+      {Object.keys(groupedByMenu).length === 0 ? (
+        <Empty description={`No orders available on this date (${selectedDate})`} />
+      ) : (
+        <div>
+          <h3 style={{ marginBottom: "16px" }}>Date: {selectedDate}</h3>
+          {Object.keys(groupedByMenu).sort().map(menuName => (
+            <Card key={menuName} title={menuName} style={{ marginBottom: "16px" }}>
+              <Table
+                columns={columns}
+                dataSource={getTableData(menuName)}
+                pagination={false}
+                size="small"
+                rowKey="key"
+              />
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

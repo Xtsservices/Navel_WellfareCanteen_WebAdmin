@@ -21,8 +21,13 @@ const CallCenter: React.FC = () => {
 
   // 🔗 Get mobile from Redux state
   const phoneNumber = useSelector((state: AppState) => state.currentUserData?.mobile || '');
+  const currentUserData = useSelector((state: AppState) => state.currentUserData || '');
+console.log("currentUserData",currentUserData)
 
   const handleApiCall = async (option: CallOption) => {
+
+
+
     try {
       if (!phoneNumber) {
         alert('No phone number found. Please login or update your profile.');

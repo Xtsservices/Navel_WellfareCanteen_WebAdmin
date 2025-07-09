@@ -112,6 +112,18 @@ export const canteenService = {
   },
 };
 
+export const getCurrentUserData = {
+   getUserData: async () => {
+    try {
+      const response = await apiClient.get("/getProfile");
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching canteens:", error);
+      throw error;
+    }
+  },
+}
+
 // Item API services
 export const itemService = {
   // Create a new item
@@ -343,11 +355,21 @@ export const adminDashboardService = {
   },
 
   // Get total orders count (with optional canteenId filter)
-  getTotalOrders: async (canteenId?: number) => {
+  getTotalOrders: async (canteenId?: number, orderDate?: any) => {
     try {
-      const url = canteenId 
-        ? `/adminDasboard/getTotalOrders?canteenId=${canteenId}`
-        : `/adminDasboard/getTotalOrders`;
+      console.log("orderDate",orderDate.orderDate)
+      let url = "/adminDasboard/getTotalOrders";
+      const params: string[] = [];
+      if (canteenId !== undefined) {
+        params.push(`canteenId=${canteenId}`);
+      }
+      if (orderDate?.orderDate !== undefined) {
+        params.push(`orderDate=${orderDate.orderDate}`);
+      }
+      if (params.length > 0) {
+        url += "?" + params.join("&");
+      }
+      console.log("orderDate",url)
       const response = await apiClient.get(url);
       return response.data;
     } catch (error) {
