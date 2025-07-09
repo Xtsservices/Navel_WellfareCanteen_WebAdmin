@@ -225,7 +225,7 @@ const OrdersDashboard: React.FC = () => {
   // Calculate stats from orders
   const totalRevenue = orders.reduce((sum, order) => sum + order.totalAmount, 0);
   const totalOrders = orders.length;
-  const totalDelivered = orders.filter(order => order.status === "delivered").length;
+  const totalDelivered = orders.filter(order => order.status === "completed").length;
   const totalCanceled = orders.filter(order => order.status === "canceled").length;
 
   const statCards = [
