@@ -93,12 +93,14 @@ const PaymentMethod: React.FC<PaymentMethodProps> = () => {
       const data: ApiResponse = await response.json();
 
       console.log("Full API Response========:", data);
-
-      if (response.ok && data.data?.paymentlink) {
+      
+      
+      if (data.data?.paymentlink) {
         setOrderResponse(data);
+        console.log("Possible Payment Link:1", data.data?.paymentlink);
 
         //update redux store with cart items count
-         await fetchCartData();
+        //  await fetchCartData();
 
         // Check for payment link with different possible property names
         const possiblePaymentLink =
@@ -107,7 +109,7 @@ const PaymentMethod: React.FC<PaymentMethodProps> = () => {
           data.payment_link ||
           data.link;
 
-        console.log("Possible Payment Link:", possiblePaymentLink);
+        console.log("Possible Payment Link:2", possiblePaymentLink);
 
         if (selectedMethod === "online" && possiblePaymentLink) {
           console.log("Payment Link Found:", possiblePaymentLink);
