@@ -28,7 +28,7 @@ interface CanteenProps {
   firstName?: string;
   lastName?: string;
   email?: string;
-  adminMobile?: string;
+  mobileNumber?: string;
 }
 
 interface AddCanteenModalProps {
@@ -59,7 +59,7 @@ const AddCanteenModal: React.FC<AddCanteenModalProps> = ({
         firstName: initialData.firstName || "",
         lastName: initialData.lastName || "",
         emailId: initialData.email || "",
-        mobileNumber: initialData.adminMobile || "",
+        mobileNumber: initialData.mobileNumber || "",
         canteenImage: initialData.image
           ? [{ uid: "-1", name: "image", status: "done", url: initialData.image }]
           : [],

@@ -33,7 +33,9 @@ const CanteenList: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const navigate = useNavigate();
   const [countsData, setCountsData] = React.useState<any>([]);
-  const [selectedCanteen, setSelectedCanteen] = useState<CanteenProps | null>(null);
+  const [selectedCanteen, setSelectedCanteen] = useState<CanteenProps | null>(
+    null
+  );
 
   useEffect(() => {
     fetchCanteens();
@@ -56,13 +58,21 @@ const CanteenList: React.FC = () => {
       const response = await canteenService.getAllCanteens();
 
       if (response && response.data) {
-        const formattedCanteens = response.data.map((canteen: any) => ({
-          id: canteen.id,
-          name: canteen.canteenName,
-          code: canteen.canteenCode,
-          location: canteen.location || "Not specified",
-          image: canteen.canteenImage || "/api/placeholder/250/150",
-        }));
+        const formattedCanteens = response.data.map((canteen: any) => {
+          const user = canteen.users?.[canteen.users.length - 1] || {};
+
+          return {
+            id: canteen.id,
+            name: canteen.canteenName,
+            code: canteen.canteenCode,
+            location: canteen.location || "Not specified",
+            image: canteen.canteenImage || "/api/placeholder/250/150",
+            firstName: user.firstName || "",
+            lastName: user.lastName || "",
+            mobileNumber: user.mobile || "",
+            email: user.email || "",
+          };
+        });
 
         setCanteens(formattedCanteens);
       } else {
@@ -89,6 +99,7 @@ const CanteenList: React.FC = () => {
   };
 
   const handleEditCanteen = (canteen: CanteenProps) => {
+    console.log("canteen=======", canteen);
     setSelectedCanteen(canteen);
     setIsModalOpen(true);
   };
@@ -147,19 +158,19 @@ const CanteenList: React.FC = () => {
       >
         <BackHeader path="/dashboard" title="Canteens Management" />
         {countsData?.length !== 0 && <CanteenOrdersDisplay data={countsData} />}
-        
+
         {loading ? (
           <Loader />
         ) : canteens.length === 0 ? (
           <EmptyState />
         ) : (
-          <Row 
+          <Row
             gutter={[
-              window.innerWidth <= 480 ? 8 : window.innerWidth <= 768 ? 12 : 16, 
-              window.innerWidth <= 480 ? 8 : window.innerWidth <= 768 ? 12 : 16
+              window.innerWidth <= 480 ? 8 : window.innerWidth <= 768 ? 12 : 16,
+              window.innerWidth <= 480 ? 8 : window.innerWidth <= 768 ? 12 : 16,
             ]}
-            style={{ 
-              margin: window.innerWidth <= 480 ? "0 -4px" : "0 -8px" 
+            style={{
+              margin: window.innerWidth <= 480 ? "0 -4px" : "0 -8px",
             }}
           >
             {/* Add New Canteen Card */}
@@ -192,13 +203,13 @@ const CanteenList: React.FC = () => {
               >
                 <div style={{ marginBottom: "8px" }}>
                   <PlusOutlined
-                    style={{ 
-                      fontSize: window.innerWidth <= 480 ? "24px" : "32px", 
-                      color: "#52c41a" 
+                    style={{
+                      fontSize: window.innerWidth <= 480 ? "24px" : "32px",
+                      color: "#52c41a",
                     }}
                   />
                 </div>
-                <Typography.Text 
+                <Typography.Text
                   strong
                   style={{
                     fontSize: window.innerWidth <= 480 ? "12px" : "14px",
@@ -215,7 +226,7 @@ const CanteenList: React.FC = () => {
               <Col xs={24} sm={12} md={8} lg={6} xl={4} key={canteen.id}>
                 <Card
                   hoverable
-                  style={{ 
+                  style={{
                     height: window.innerWidth <= 480 ? "320px" : "360px",
                     display: "flex",
                     flexDirection: "column",
@@ -277,8 +288,14 @@ const CanteenList: React.FC = () => {
                           canteen.name.slice(1)
                         : ""}
                     </Typography.Title>
-                    
-                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "8px",
+                      }}
+                    >
                       <Button
                         type="primary"
                         onClick={(e) => {
