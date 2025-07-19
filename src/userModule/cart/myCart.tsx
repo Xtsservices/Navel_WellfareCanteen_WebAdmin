@@ -11,7 +11,10 @@ import UserHeader from "../userComponents/UserHeader";
 import { BASE_URL } from "../../constants/api";
 import { AppState } from "../../store/storeTypes";
 import { useSelector } from "react-redux";
-import { toastSuccess } from "../../components/common/toasterMessage";
+import {
+  toastError,
+  toastSuccess,
+} from "../../components/common/toasterMessage";
 
 const MyCart: React.FC = () => {
   const navigation = useNavigate();
@@ -62,7 +65,6 @@ const MyCart: React.FC = () => {
       console.log("body===========res=========", resp);
       console.log("body===========res=========2", resp?.data?.errors?.[0]);
       if (resp?.data?.errors?.[0]) {
-
         toastSuccess(resp?.data?.errors?.[0] || "something went wrong");
       }
 
@@ -82,7 +84,9 @@ const MyCart: React.FC = () => {
           return { ...prev, cartItems: updatedItems };
         });
       }
-    } catch (err) {
+    } catch (err: any) {
+      const message = err?.response?.data?.message;
+      toastError(message);
       setError("Failed to update cart item");
       console.error(err, "updateqty");
     } finally {
