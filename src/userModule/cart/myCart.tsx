@@ -11,6 +11,7 @@ import UserHeader from "../userComponents/UserHeader";
 import { BASE_URL } from "../../constants/api";
 import { AppState } from "../../store/storeTypes";
 import { useSelector } from "react-redux";
+import { toastSuccess } from "../../components/common/toasterMessage";
 
 const MyCart: React.FC = () => {
   const navigation = useNavigate();
@@ -59,6 +60,11 @@ const MyCart: React.FC = () => {
         },
       });
       console.log("body===========res=========", resp);
+      console.log("body===========res=========2", resp?.data?.errors?.[0]);
+      if (resp?.data?.errors?.[0]) {
+
+        toastSuccess(resp?.data?.errors?.[0] || "something went wrong");
+      }
 
       if (resp?.data?.data) {
         // Update local state only
@@ -78,7 +84,7 @@ const MyCart: React.FC = () => {
       }
     } catch (err) {
       setError("Failed to update cart item");
-      console.error(err);
+      console.error(err, "updateqty");
     } finally {
       setUpdatingItems((prev) => prev.filter((id) => id !== cartItem.id));
     }

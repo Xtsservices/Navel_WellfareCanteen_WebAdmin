@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom"; // Add this import
 import UserHeader from "../userComponents/UserHeader";
 import { useDispatch } from "react-redux";
 import { fetchCartData } from "../service/cartHelpers";
-
+import axios from "axios";
 import { BASE_URL } from "../../constants/api";
 
 // Type definitions
@@ -67,7 +67,7 @@ const PaymentMethod: React.FC<PaymentMethodProps> = () => {
   const qrCodeRef = useRef<HTMLDivElement>(null);
 
   // Place order and get payment link or order details
-  const handlePayment = useCallback(async (): Promise<void> => {
+  async function handlePayment() {
     if (!selectedMethod) {
       alert("Please select a payment method");
       return;
@@ -81,20 +81,32 @@ const PaymentMethod: React.FC<PaymentMethodProps> = () => {
         return;
       }
 
-      const response = await fetch(BASE_URL + API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          authorization: token,
-        },
-        body: JSON.stringify({ paymentMethod: ["wallet", selectedMethod] }),
-      });
+      // const response = await fetch(BASE_URL + API_URL, {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //     authorization: token,
+      //   },
+      //   body: JSON.stringify({ paymentMethod: ["wallet", selectedMethod] }),
+      // });
 
-      const data: ApiResponse = await response.json();
+      // const data: ApiResponse = await response.json();
 
-      console.log("Full API Response========:", data);
-      
-      
+      const response = await axios.post(
+        BASE_URL + API_URL,
+        { paymentMethod: ["wallet", selectedMethod] },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            authorization: token,
+          },
+        }
+      );
+
+      const data: ApiResponse = response.data;
+
+      console.log("Full API paymentMethod Response:", data);
+
       if (data.data?.paymentlink) {
         setOrderResponse(data);
         console.log("Possible Payment Link:1", data.data?.paymentlink);
@@ -142,7 +154,7 @@ const PaymentMethod: React.FC<PaymentMethodProps> = () => {
     } finally {
       setLoading(false);
     }
-  }, [selectedMethod]);
+  }
 
   // When coming back from payment, fetch order details again
   const fetchOrderDetails = useCallback(async (): Promise<void> => {
@@ -231,14 +243,6 @@ const PaymentMethod: React.FC<PaymentMethodProps> = () => {
   const handleWalletClick = (): void => {
     navigate("/wallet"); // Use navigate instead of navigation
   };
-
-  console.log("Current state:", {
-    showWebView,
-    paymentLink,
-    showOrderDetails,
-    selectedMethod,
-    hasOrderResponse: !!orderResponse,
-  });
 
   return (
     <div className="payment-container">

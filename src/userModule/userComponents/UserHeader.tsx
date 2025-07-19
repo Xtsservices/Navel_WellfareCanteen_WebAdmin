@@ -19,7 +19,7 @@ import {
   HomeOutlined,
   QuestionCircleOutlined,
 } from "@ant-design/icons";
-import navyLogo from "/public/Naval.jpg";
+import navyLogo from "../../assets/images/Naval.jpg";
 import { useNavigate } from "react-router-dom";
 import { fetchCartData } from "../service/cartHelpers";
 import { useSelector } from "react-redux";

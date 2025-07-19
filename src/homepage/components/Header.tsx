@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { Link, useLocation } from "react-router-dom";
-import logo from "/public/Naval.jpg";
+import logo from "../../assets/images/Naval.jpg";
 
 const HeaderWrapper = styled.header`
   display: flex;
