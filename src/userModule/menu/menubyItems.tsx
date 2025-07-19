@@ -14,7 +14,11 @@ import axios from "axios";
 import { useDispatch } from "react-redux";
 
 import { BASE_URL } from "../../constants/api";
-import { toastError, toastSuccess } from "../../components/common/toasterMessage";
+import {
+  toastError,
+  toastSuccess,
+} from "../../components/common/toasterMessage";
+import { message } from "antd";
 
 interface Pricing {
   id: number;
@@ -125,8 +129,10 @@ const MenuByItems: React.FC = () => {
       }));
 
       setUpdateLoading(null);
-    } catch (err) {
-      setError("Failed to update quantity");
+    } catch (err: any) {
+      console.log("err");
+      const message = err?.response?.data?.message;
+      toastError(message);
       console.error("Error updating quantity:", err);
       setUpdateLoading(null);
     }
@@ -193,7 +199,9 @@ const MenuByItems: React.FC = () => {
       setCartData(updatedCartData);
 
       setUpdateLoading(null);
-    } catch (err) {
+    } catch (err: any) {
+      const message = err?.response?.data?.message;
+      toastError(message);
       setError("Failed to update cart item");
       console.error("Error updating cart item:", err);
     }
@@ -290,11 +298,11 @@ const MenuByItems: React.FC = () => {
       setUpdateLoading(null);
     } catch (err: any) {
       const message = err.response.data.message;
-      toastError(message)
-      if(message === "Menu is Different. Please select items from same menu"){
-         navigate("/user/myCart");
+      toastError(message);
+      if (message === "Menu is Different. Please select items from same menu") {
+        navigate("/user/myCart");
       }
-     
+
       setError("Failed to add item to cart");
       console.error("Error adding to cart:", err);
       setUpdateLoading(null);

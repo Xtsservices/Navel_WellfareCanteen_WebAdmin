@@ -5,6 +5,10 @@ import { useDispatch } from "react-redux";
 import { fetchCartData } from "../service/cartHelpers";
 import axios from "axios";
 import { BASE_URL } from "../../constants/api";
+import {
+  toastError,
+  toastSuccess,
+} from "../../components/common/toasterMessage";
 
 // Type definitions
 interface PaymentData {
@@ -48,7 +52,7 @@ interface PaymentMethodProps {
   // Remove navigation prop since we'll use useNavigate hook
 }
 
-type PaymentMethodType = "online" | "cash" | "";
+type PaymentMethodType = "online" | "wallet" | "";
 
 const API_URL = "/order/placeOrder";
 
@@ -81,20 +85,9 @@ const PaymentMethod: React.FC<PaymentMethodProps> = () => {
         return;
       }
 
-      // const response = await fetch(BASE_URL + API_URL, {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //     authorization: token,
-      //   },
-      //   body: JSON.stringify({ paymentMethod: ["wallet", selectedMethod] }),
-      // });
-
-      // const data: ApiResponse = await response.json();
-
       const response = await axios.post(
         BASE_URL + API_URL,
-        { paymentMethod: ["wallet", selectedMethod] },
+        { paymentMethod: [selectedMethod] },
         {
           headers: {
             "Content-Type": "application/json",
@@ -103,11 +96,11 @@ const PaymentMethod: React.FC<PaymentMethodProps> = () => {
         }
       );
 
-      const data: ApiResponse = response.data;
+      const data: any = response.data;
 
       console.log("Full API paymentMethod Response:", data);
 
-      if (data.data?.paymentlink) {
+      if (data?.data?.paymentlink && selectedMethod === "online") {
         setOrderResponse(data);
         console.log("Possible Payment Link:1", data.data?.paymentlink);
 
@@ -134,23 +127,17 @@ const PaymentMethod: React.FC<PaymentMethodProps> = () => {
           console.log("No payment link found in response for online payment");
           alert("Error: Payment link not received from server");
           setShowOrderDetails(true);
-        } else {
-          setShowOrderDetails(true);
-          if (selectedMethod === "cash") {
-            alert("Order Placed Successfully");
-          }
         }
-      } else {
-        console.log("API Error Response:", data);
-        if (!data?.data?.paymentlink) {
-          alert(`Something Went Wrong! Please try again.`);
-          return;
-        }
-        alert(`Payment Failed: ${data.message || "Please try again."}`);
+      } else if (data?.data) {
+        toastSuccess("Order Placed Success");
+        setTimeout(() => {
+          navigate("/user/orders");
+        }, 2000);
       }
-    } catch (error) {
+    } catch (error: any) {
+      const message = error?.response?.data?.message;
+      toastError(message);
       console.error("Payment error:", error);
-      alert("Error: Could not process payment.");
     } finally {
       setLoading(false);
     }
@@ -588,6 +575,35 @@ const PaymentMethod: React.FC<PaymentMethodProps> = () => {
                     className="payment-icon"
                   />
                   <span className="option-text">UPI</span>
+                </div>
+
+                <div
+                  onClick={() => handlePaymentOptionClick("wallet")}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    cursor: "pointer",
+                    border:
+                      selectedMethod === "wallet"
+                        ? "2px solid #1890ff"
+                        : "1px solid #ccc",
+                    padding: "10px",
+                    borderRadius: "8px",
+                    backgroundColor:
+                      selectedMethod === "wallet" ? "#e6f7ff" : "#fff",
+                    transition: "all 0.2s",
+                    marginBottom: "10px",
+                    height: "90px",
+                  }}
+                >
+                  <img
+                    src="https://cdn-icons-png.flaticon.com/512/2331/2331940.png"
+                    alt="Wallet"
+                    style={{ width: 32, height: 32, marginRight: 10 }}
+                  />
+                  <span style={{ fontSize: 16 }}>WC-Wallet</span>
                 </div>
               </div>
               <button

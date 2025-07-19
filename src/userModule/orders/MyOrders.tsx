@@ -118,10 +118,7 @@ const MyOrders: React.FC = () => {
         });
 
         if (response?.data?.data) {
-          const sortedOrders = [...response.data.data].sort(
-            (a, b) => b.orderDate - a.orderDate
-          );
-          setOrders(sortedOrders);
+          setOrders(response?.data?.data);
         }
       } catch (error: any) {
         console.error("Failed to fetch orders", error);
