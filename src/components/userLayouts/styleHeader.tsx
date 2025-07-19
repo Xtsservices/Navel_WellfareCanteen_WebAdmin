@@ -20,7 +20,7 @@ import {
   ProfileOutlined,
 } from "@ant-design/icons";
 // import NotificationsDropdown from "../../modules/notifications/notificationDropdown";
-import navyLogo from "/public/Naval.jpg";
+import navyLogo from "../../assets/images/Naval.jpg";
 import { useNavigate } from "react-router-dom";
 
 const { Header } = Layout;

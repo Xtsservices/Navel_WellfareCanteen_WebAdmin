@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import logo from "/public/Naval.jpg";
+import logo from "../../assets/images/Naval.jpg";
 import poweredByLogo from "../images/Worldtek.png";
 
 const FooterContainer = styled.footer`

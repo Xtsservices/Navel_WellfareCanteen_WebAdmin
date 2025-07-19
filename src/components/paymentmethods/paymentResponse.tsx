@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-
+import axios from "axios";
 import { BASE_URL } from "../../constants/api";
 
 
@@ -37,37 +37,40 @@ const PaymentResponse = () => {
   console.log("searchParams", searchParams);
   const navigate = useNavigate();
 
-  useEffect(() => {
+   useEffect(() => {
     const linkId = searchParams.get("link_id");
     console.log("Link ID from URL:", linkId);
+
     if (!linkId) {
       setError("No link_id found in URL.");
       setLoading(false);
       return;
     }
-    console.log("/user/orders======start======", 10);
-    fetch(
-      `${BASE_URL}/order/CashfreePaymentLinkDetails`,
-      {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ linkId }),
+
+    const fetchPaymentDetails = async () => {
+      try {
+        const response = await axios.post(
+          `${BASE_URL}/order/CashfreePaymentLinkDetails`,
+          { linkId },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        const data = response.data;
+        setPayment(data.data?.payment);
+        setOrderDetails(data.data?.orderdetails);
+      } catch (err:any) {
+        setError(err.response?.data?.message || err.message);
+      } finally {
+        setLoading(false);
       }
-    )
-      .then(async (res) => {
-      if (!res.ok) throw new Error("Failed to fetch payment details");
-      const data = await res.json();
-      setPayment(data.data?.payment);
-      setOrderDetails(data.data?.orderdetails);
-      // setInterval(() => {
-      //   navigate("/user/orders")
-      // }, 2000);
-      })
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, [searchParams]);
+    };
+
+    fetchPaymentDetails();
+  }, []);
 
   // Show tick if payment is successful
   const showTick =

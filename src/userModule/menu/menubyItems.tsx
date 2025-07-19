@@ -14,7 +14,6 @@ import { useDispatch } from "react-redux";
 
 import { BASE_URL } from "../../constants/api";
 
-
 interface Pricing {
   id: number;
   price: number;
@@ -56,7 +55,7 @@ const MenuByItems: React.FC = () => {
   const { id } = useParams();
   const menuId = id;
   const token = localStorage.getItem("Token") || "";
- 
+
   // Increment quantity
   const increaseQuantity = async (item: MenuItem) => {
     setCartUpdated(true);
@@ -130,57 +129,80 @@ const MenuByItems: React.FC = () => {
       setUpdateLoading(null);
     }
   };
-  
-    const decreaseQuantity = async (cartItem: MenuItem) => {
+
+  const decreaseQuantity = async (cartItem: MenuItem) => {
     try {
+      const token = localStorage.getItem("Token");
       // Add item ID to updating state
-          const itemId = cartItem.item.id;
+      const itemId = cartItem.item.id;
       const itemKey = String(itemId);
-      const currentQty = cartItems[itemKey].quantity;
+      const updatedQty = cartItems[itemKey].quantity;
+      const currentQty = updatedQty - 1;
+      console.log("currentQty", currentQty);
       const body = {
         cartItemId: cartItem.item?.id,
-        quantity: currentQty-1,
+        quantity: currentQty,
         cartId: cartData?.id,
       };
 
-      console.log("Request body:", body);
-      const token = localStorage.getItem("Token");
-      await axios.post(`${BASE_URL}/cart/updateCartItem`, body, {
-        headers: {
-          "Content-Type": "application/json",
-          authorization: token,
-        },
-      });
- // Refresh cart data
+      if (body.quantity == 0) {
+        const payload = {
+          cartId: Number(cartData?.id),
+          cartItemId: Number(itemId),
+        };
+        const response = await axios.post(
+          `${BASE_URL}/cart/removeCartItem`,
+          payload,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              authorization: token,
+            },
+          }
+        );
+
+        setCartItems((prev) => {
+          const updated = { ...prev };
+          delete updated[itemKey];
+          return updated;
+        });
+
+        console.log("responselool", response);
+      } else {
+        console.log("Request body:", body);
+        await axios.post(`${BASE_URL}/cart/updateCartItem`, body, {
+          headers: {
+            "Content-Type": "application/json",
+            authorization: token,
+          },
+        });
+        // Update cart items state
+        setCartItems((prev) => ({
+          ...prev,
+          [itemKey]: {
+            ...prev[itemKey],
+            quantity: currentQty,
+          },
+        }));
+      }
+      // Refresh cart data
       const updatedCartData = await fetchCartData();
       setCartData(updatedCartData);
-
-      // Update cart items state
-      setCartItems(prev => ({
-        ...prev,
-        [itemKey]: {
-          ...prev[itemKey],
-          quantity: currentQty-1,
-        },
-      }));
 
       setUpdateLoading(null);
     } catch (err) {
       setError("Failed to update cart item");
       console.error("Error updating cart item:", err);
-    } 
+    }
   };
 
   const fetchMenuItems = async () => {
     try {
-      const res = await fetch(
-        `${BASE_URL}/menu/getMenuById?id=${menuId}`,
-        {
-          headers: {
-        Authorization: token,
-          },
-        }
-      );
+      const res = await fetch(`${BASE_URL}/menu/getMenuById?id=${menuId}`, {
+        headers: {
+          Authorization: token,
+        },
+      });
       const data = await res.json();
       setMenuData(data.data); // Save full menu data
       setItems(data.data?.menuItems || []);
