@@ -42,7 +42,7 @@ const MyCart: React.FC = () => {
     cartItem: CartItem,
     newQuantity: number
   ) => {
-    console.log("first====================", cartItem, newQuantity);
+    console.log("first========update============", cartItem, newQuantity);
 
     try {
       setUpdatingItems((prev) => [...prev, cartItem.id]);

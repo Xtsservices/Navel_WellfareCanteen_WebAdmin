@@ -79,7 +79,7 @@ const UserHeader: React.FC<HeaderProps> = ({ headerText }) => {
           <Menu.Item
             key="help"
             icon={<QuestionCircleOutlined />}
-            onClick={() => handleNavigation("/contact-support")}
+            onClick={() => handleNavigation("/user/contact-support")}
           >
             Help & Support
           </Menu.Item>
