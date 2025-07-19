@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { CartData, CartItemsState } from "../userModuleTypes/cartTypes";
+
 import {
   addItemToCart,
   fetchCartData,
@@ -13,6 +14,7 @@ import axios from "axios";
 import { useDispatch } from "react-redux";
 
 import { BASE_URL } from "../../constants/api";
+import { toastError, toastSuccess } from "../../components/common/toasterMessage";
 
 interface Pricing {
   id: number;
@@ -170,12 +172,13 @@ const MenuByItems: React.FC = () => {
         console.log("responselool", response);
       } else {
         console.log("Request body:", body);
-        await axios.post(`${BASE_URL}/cart/updateCartItem`, body, {
+        const resp = await axios.post(`${BASE_URL}/cart/updateCartItem`, body, {
           headers: {
             "Content-Type": "application/json",
             authorization: token,
           },
         });
+        console.log("resboom", resp);
         // Update cart items state
         setCartItems((prev) => ({
           ...prev,
@@ -263,6 +266,8 @@ const MenuByItems: React.FC = () => {
         minQty
       );
 
+      console.log("resboomresult", result);
+
       // Refresh cart data
       const updatedCartData = await fetchCartData();
       setCartData(updatedCartData);
@@ -283,7 +288,13 @@ const MenuByItems: React.FC = () => {
       }
 
       setUpdateLoading(null);
-    } catch (err) {
+    } catch (err: any) {
+      const message = err.response.data.message;
+      toastError(message)
+      if(message === "Menu is Different. Please select items from same menu"){
+         navigate("/user/myCart");
+      }
+     
       setError("Failed to add item to cart");
       console.error("Error adding to cart:", err);
       setUpdateLoading(null);
