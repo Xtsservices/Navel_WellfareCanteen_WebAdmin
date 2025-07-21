@@ -67,7 +67,8 @@ const App = () => {
 
 
   useEffect(() => {
-    if (!currentUserData && !hasFetchedUser.current) {
+   const token =  localStorage.getItem("Token")
+    if (token && !currentUserData && !hasFetchedUser.current) {
       hasFetchedUser.current = true; // ✅ Prevent future fetch attempts
       getCurrentUser();
     }

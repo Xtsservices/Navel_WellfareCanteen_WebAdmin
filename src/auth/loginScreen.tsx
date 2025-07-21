@@ -64,7 +64,7 @@ const LoginScreen: React.FC = () => {
       } finally {
         setLoading(false);
       }
-    } catch (err) {
+    } catch (err:any) {
       setOtpButtonDisabled(false);
     }
   };
