@@ -98,9 +98,28 @@ const PaymentMethod: React.FC<PaymentMethodProps> = () => {
 
       const data: any = response.data;
 
-      console.log("Full API paymentMethod Response:", data);
 
-      if (data?.data?.paymentlink && selectedMethod === "online") {
+            console.log("Full API paymentMethod Response:", data);
+console.log("data?.data?.paymentlink",data.data.paymentlink)
+
+      const rawLink =
+        data?.data?.paymentlink ||
+        data?.paymentLink ||
+        data?.payment_link ||
+        data?.link;
+
+console.log("rawLink",rawLink)
+      // ✅ Function to validate URL
+      const isValidUrl = (url: any) => {
+        try {
+          new URL(url);
+          return true;
+        } catch (_) {
+          return false;
+        }
+      };
+
+      if (isValidUrl(rawLink) && selectedMethod === "online") {
         setOrderResponse(data);
         console.log("Possible Payment Link:1", data.data?.paymentlink);
 
@@ -128,7 +147,7 @@ const PaymentMethod: React.FC<PaymentMethodProps> = () => {
           alert("Error: Payment link not received from server");
           setShowOrderDetails(true);
         }
-      } else if (data?.data) {
+      } else if (isValidUrl(rawLink)) {
         toastSuccess("Order Placed Success");
         setTimeout(() => {
           navigate("/user/orders");
@@ -564,9 +583,8 @@ const PaymentMethod: React.FC<PaymentMethodProps> = () => {
             <>
               <div className="payment-options">
                 <div
-                  className={`payment-option ${
-                    selectedMethod === "online" ? "selected" : ""
-                  }`}
+                  className={`payment-option ${selectedMethod === "online" ? "selected" : ""
+                    }`}
                   onClick={() => handlePaymentOptionClick("online")}
                 >
                   <img

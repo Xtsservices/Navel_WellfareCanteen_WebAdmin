@@ -38,6 +38,7 @@ import BackHeader from "../../components/common/backHeader";
 import Loader from "../../components/common/loader";
 import { useParams } from "react-router-dom";
 import { toastSuccess } from "../../components/common/toasterMessage";
+import { createGlobalStyle } from "styled-components";
 
 const { Paragraph, Text } = Typography;
 
@@ -95,6 +96,7 @@ const MenuList: React.FC = () => {
         ? await adminDashboardService.getTotalMenus(Number(route.canteenId))
         : await menuService.getAllMenus();
 
+        console.log("responsemenu",response)
       if (response?.data) {
         setMenus(response.data);
       }
@@ -632,3 +634,5 @@ const MenuList: React.FC = () => {
 };
 
 export default MenuList;
+
+
