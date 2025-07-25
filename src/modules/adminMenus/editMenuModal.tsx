@@ -71,13 +71,18 @@ const EditMenuModal: React.FC<EditMenuModalProps> = ({
     const menuItemIds = menu.menuItems?.map((item) => item.itemId);
     setSelectedItems(menuItemIds);
 
+    console.log("menu",menu)
+    console.log("canteenName",menu.canteenMenu.canteenName)
+    console.log("name",menu.name)
+    console.log("menu?.MenuConfiguration?.defaultStartTime",menu?.menuMenuConfiguration?.defaultStartTime)
     // Set form values
     form.setFieldsValue({
+      canteenId:menu?.canteenMenu?.id,
       description: menu.description,
-      menuType: menu.menuConfigurationId,
-      canteenId: menu.canteenId,
-      startDate: dayjs(menu?.startTime),
-      endDate: dayjs(menu?.endTime),
+      menuType:menu.name,
+      menuConfigurationId:menu.menuConfigurationId,
+      startDate: dayjs.unix(menu?.startTime),
+      endDate: dayjs.unix(menu?.endTime),
     });
 
     // Set min/max quantities for each item
@@ -170,7 +175,7 @@ const EditMenuModal: React.FC<EditMenuModalProps> = ({
 
       const menuData = {
         description: values.description,
-        menuConfigurationId: values.menuType,
+        menuConfigurationId: values.menuConfigurationId,
         canteenId: values.canteenId,
         items: menuItems,
         startDate: startDate || "",
@@ -252,7 +257,7 @@ console.log("menuData:==========items", menuData.items);
               {loadingCanteens ? (
                 <Spin size="small" />
               ) : (
-                <Select placeholder="Select canteen">
+                <Select placeholder="Select canteen" disabled>
                   {canteens?.map((canteen) => (
                     <Option key={canteen.id} value={canteen.id}>
                       {canteen.canteenName}
@@ -293,7 +298,7 @@ console.log("menuData:==========items", menuData.items);
               {loadingConfigs ? (
                 <Spin size="small" />
               ) : (
-                <Select placeholder="Select meal type">
+                <Select placeholder="Select meal type" disabled>
                   {menuConfigurations?.map((config) => (
                     <Option key={config.id} value={config.id}>
                       {config.name}
