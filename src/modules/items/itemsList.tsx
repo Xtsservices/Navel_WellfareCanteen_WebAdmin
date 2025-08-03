@@ -43,12 +43,7 @@ interface ItemProps {
   status: string;
 }
 
-const getImageSrc = (base64String: string) => {
-  if (base64String.startsWith("data:image")) {
-    return base64String;
-  }
-  return `data:image/png;base64,${base64String}`;
-};
+
 
 const ItemsList: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -70,7 +65,7 @@ const ItemsList: React.FC = () => {
 
       if (response && response.data) {
         const formattedItems = response.data.map((item: any) => {
-          let image = getImageSrc(item.image);
+          let image = item.image;
 
           return {
             id: item.id,
@@ -196,7 +191,7 @@ const ItemsList: React.FC = () => {
     </div>
   );
 
-  console.log("Items:", selectedItem);
+  console.log("Items:", items);
 
   return (
     <Layout>

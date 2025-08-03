@@ -13,7 +13,8 @@ import axios from "axios";
 const { Title, Text } = Typography;
 
 import { BASE_URL } from "../../constants/api";
-
+// import {QRCodeCanvas } from "qrcode.react";
+import QRCode from 'qrcode';
 
 interface OrderItem {
   id: number;
@@ -118,7 +119,23 @@ const MyOrders: React.FC = () => {
         });
 
         if (response?.data?.data) {
-          setOrders(response?.data?.data);
+          // Map through orders to add QR code to each order item
+           const ordersWithQR = await Promise.all(
+        response.data.data.map(async (order:any) => {
+          const qrCodeData = `https://server.welfarecanteen.in/api/order/${order.id}`;
+          const qrCodeDataURL = await QRCode.toDataURL(qrCodeData); // PNG base64
+
+          return {
+            ...order,
+            qrCode: qrCodeDataURL,
+            qrValue: qrCodeData, // Store the value used for scan
+          };
+        })
+      );
+console.log("ordersWithQR",ordersWithQR)
+      setOrders(ordersWithQR);
+
+        // setOrders(response.data.data);
         }
       } catch (error: any) {
         console.error("Failed to fetch orders", error);
@@ -190,7 +207,7 @@ const MyOrders: React.FC = () => {
                   </Button>
 
                   <div style={{ marginTop: 16, textAlign: "center" }}>
-                    <a href={order.qrCode} download={`order_${order.id}_qr.png`}>
+                   <a href={order.qrCode} download={`order_${order.id}_qr.png`}>
                       <img
                         src={order.qrCode}
                         alt={`QR for order #${order.id}`}

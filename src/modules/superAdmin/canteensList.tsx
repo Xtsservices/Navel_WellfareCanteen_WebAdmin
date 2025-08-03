@@ -23,7 +23,7 @@ interface CanteenProps {
   id: number;
   name: string;
   location?: string;
-  image: string;
+  canteenImage: string;
   code: string;
 }
 
@@ -66,7 +66,7 @@ const CanteenList: React.FC = () => {
             name: canteen.canteenName,
             code: canteen.canteenCode,
             location: canteen.location || "Not specified",
-            image: canteen.canteenImage || "/api/placeholder/250/150",
+            canteenImage: canteen.canteenImage || "/api/placeholder/250/150",
             firstName: user.firstName || "",
             lastName: user.lastName || "",
             mobileNumber: user.mobile || "",
@@ -256,7 +256,7 @@ const CanteenList: React.FC = () => {
                     >
                       <img
                         alt={canteen.name}
-                        src={canteen.image}
+                        src={canteen.canteenImage}
                         style={{
                           width: "100%",
                           height: "100%",
