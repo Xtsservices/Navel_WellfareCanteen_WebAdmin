@@ -319,7 +319,7 @@ const MenuByItems: React.FC = () => {
         {items.map((menuItem) => (
           <div key={menuItem.id} style={styles.card}>
             <img
-              src={`data:image/jpeg;base64,${menuItem.item.image}`}
+              src={menuItem.item.image}
               alt={menuItem.item.name}
               style={styles.image}
             />

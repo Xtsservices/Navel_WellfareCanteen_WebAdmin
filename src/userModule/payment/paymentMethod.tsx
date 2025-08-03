@@ -100,6 +100,8 @@ const PaymentMethod: React.FC<PaymentMethodProps> = () => {
 
 
             console.log("Full API paymentMethod Response:", data);
+            const isOrderPlaced = data?.data?.order?.status === "placed"
+            console.log("placed", isOrderPlaced);
 console.log("data?.data?.paymentlink",data.data.paymentlink)
 
       const rawLink =
@@ -147,7 +149,7 @@ console.log("rawLink",rawLink)
           alert("Error: Payment link not received from server");
           setShowOrderDetails(true);
         }
-      } else if (isValidUrl(rawLink)) {
+      } else if (isOrderPlaced) {
         toastSuccess("Order Placed Success");
         setTimeout(() => {
           navigate("/user/orders");

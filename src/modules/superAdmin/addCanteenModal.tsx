@@ -8,13 +8,11 @@ import {
   Row,
   Col,
   Typography,
-  Upload,
   message,
 } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
-import { canteenService } from "../../auth/apiService";
 import Loader from "../../components/common/loader";
 import { toastError, toastSuccess } from "../../components/common/toasterMessage";
+import { canteenService } from "../../auth/apiService";
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -23,7 +21,7 @@ interface CanteenProps {
   id: number;
   name: string;
   location?: string;
-  image: string;
+  canteenImage: string;
   code: string;
   firstName?: string;
   lastName?: string;
@@ -48,7 +46,6 @@ const AddCanteenModal: React.FC<AddCanteenModalProps> = ({
 }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  const [fileList, setFileList] = useState<any[]>([]);
   const isEditMode = !!initialData;
 
   useEffect(() => {
@@ -60,18 +57,10 @@ const AddCanteenModal: React.FC<AddCanteenModalProps> = ({
         lastName: initialData.lastName || "",
         emailId: initialData.email || "",
         mobileNumber: initialData.mobileNumber || "",
-        canteenImage: initialData.image
-          ? [{ uid: "-1", name: "image", status: "done", url: initialData.image }]
-          : [],
+        canteenImageUrl: initialData.canteenImage || "",
       });
-      setFileList(
-        initialData.image
-          ? [{ uid: "-1", name: "image", status: "done", url: initialData.image }]
-          : []
-      );
     } else {
       form.resetFields();
-      setFileList([]);
     }
   }, [initialData, isEditMode, form]);
 
@@ -79,32 +68,31 @@ const AddCanteenModal: React.FC<AddCanteenModalProps> = ({
     try {
       const values = await form.validateFields();
       setLoading(true);
-      const formData = new FormData();
+
+      // Create a plain object instead of FormData
+      const canteenData: any = {
+        firstName: values.firstName.trim(),
+        lastName: values.lastName.trim(),
+        email: values.emailId.trim(),
+        mobile: values.mobileNumber.trim(),
+        canteenImage: values.canteenImageUrl.trim(),
+      };
 
       if (!isEditMode) {
-        formData.append("canteenName", values.canteenName.trim());
-        formData.append("canteenCode", values.canteenCode.trim());
-      }
-      formData.append("firstName", values.firstName.trim());
-      formData.append("lastName", values.lastName.trim());
-      formData.append("email", values.emailId.trim());
-      formData.append("mobile", values.mobileNumber.trim());
-     
-      if (fileList.length > 0 && fileList[0].originFileObj) {
-        formData.append("canteenImage", fileList[0].originFileObj);
+        canteenData.canteenName = values.canteenName.trim();
+        canteenData.canteenCode = values.canteenCode.trim();
       }
 
       if (isEditMode && initialData) {
-        formData.append("canteenId", initialData.id.toString());
-        await canteenService.updateCanteen(initialData.id, formData);
+        canteenData.canteenId = initialData.id;
+        await canteenService.updateCanteen(initialData.id, canteenData);
         toastSuccess("Canteen Updated Successfully!!");
       } else {
-        await canteenService.createCanteen(formData);
+        await canteenService.createCanteen(canteenData);
         toastSuccess("Canteen Added Successfully!!");
       }
 
       form.resetFields();
-      setFileList([]);
       onSubmit(values);
       onSuccess();
       onCancel();
@@ -125,33 +113,6 @@ const AddCanteenModal: React.FC<AddCanteenModalProps> = ({
     height: "40px",
   };
 
-  const handleFileChange = async ({ fileList }: any) => {
-    setFileList(fileList);
-    await form.validateFields();
-    return Promise.resolve();
-  };
-
-  const validateFileUpload = () => {
-    if (fileList.length === 0) {
-      return Promise.reject("Please upload a canteen image");
-    }
-
-    const file = fileList[0]?.originFileObj;
-    if (file) {
-      const isImage = file.type.startsWith("image/");
-      const isLt2M = file.size / 1024 / 1024 < 2;
-
-      if (!isImage) {
-        return Promise.reject("You can only upload image files!");
-      }
-      if (!isLt2M) {
-        return Promise.reject("Image must be smaller than 2MB!");
-      }
-    }
-
-    return Promise.resolve();
-  };
-
   const validateCanteenCode = (_: any, value: string) => {
     if (!value) {
       return Promise.reject("Please enter canteen code");
@@ -163,6 +124,32 @@ const AddCanteenModal: React.FC<AddCanteenModalProps> = ({
     }
 
     return Promise.resolve();
+  };
+
+  const validateImageUrl = async (_: any, value: string) => {
+    if (!value || value.trim() === "") {
+      return Promise.reject("Please enter an canteenImage URL");
+    }
+
+    const urlPattern = /^(https?:\/\/[^\s/$.?#].[^\s]*)$/i;
+    if (!urlPattern.test(value)) {
+      return Promise.reject("Please enter a valid URL");
+    }
+
+    // Async check to verify if the URL returns an image
+    try {
+      await new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(true);
+        img.onerror = () => reject(new Error("Invalid image URL"));
+        img.src = value;
+        // Timeout to prevent hanging on unreachable URLs
+        setTimeout(() => reject(new Error("Image URL timeout")), 5000);
+      });
+      return Promise.resolve();
+    } catch {
+      return Promise.reject("Cannot load image from this URL");
+    }
   };
 
   return (
@@ -281,7 +268,6 @@ const AddCanteenModal: React.FC<AddCanteenModalProps> = ({
         </Row>
 
         <Row gutter={24}>
-          
           <Col xs={24} sm={12} style={{ marginBottom: "16px" }}>
             <Form.Item
               name="mobileNumber"
@@ -328,36 +314,20 @@ const AddCanteenModal: React.FC<AddCanteenModalProps> = ({
         </Row>
 
         <Row gutter={24}>
-          
-          <Col xs={24} sm={12} style={{ marginBottom: "16px" }}>
+          <Col xs={24} sm={24} style={{ marginBottom: "16px" }}>
             <Form.Item
-              name="canteenImage"
-              label="Canteen Image"
-              rules={[{ validator: validateFileUpload }]}
+              name="canteenImageUrl"
+              label="Canteen Image URL"
+              rules={[
+                { required: true, message: "Please enter an image URL" },
+                { validator: validateImageUrl },
+              ]}
               style={formItemStyle}
             >
-              <Upload
-                listType="picture"
-                maxCount={1}
-                fileList={fileList}
-                onChange={handleFileChange}
-                beforeUpload={(file) => {
-                  const isImage = file.type.startsWith("image/");
-                  if (!isImage) {
-                    message.error("You can only upload image files!");
-                  }
-                  const isLt2M = file.size / 1024 / 1024 < 2;
-                  if (!isLt2M) {
-                    message.error("Image must be smaller than 2MB!");
-                  }
-                  return false;
-                }}
-              >
-                <Button icon={<UploadOutlined />}>Upload Canteen Image</Button>
-              </Upload>
-              <Text type="secondary" style={{ marginLeft: 8 }}>
-                Supported formats: JPG, PNG. Max size: 2MB
-              </Text>
+              <Input
+                placeholder="Enter image URL (e.g., https://example.com/image)"
+                style={inputStyle}
+              />
             </Form.Item>
           </Col>
         </Row>

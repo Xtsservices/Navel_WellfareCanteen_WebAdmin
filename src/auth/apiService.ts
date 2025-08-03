@@ -58,7 +58,7 @@ export const canteenService = {
         canteenData,
         {
           headers: {
-            "Content-Type": "multipart/form-data",
+            "Content-Type": "application/json",
           },
         }
       );
@@ -82,14 +82,14 @@ export const canteenService = {
 
   // Update canteen
   updateCanteen: async (canteenId: number, canteenData: FormData) => {
-    console.log("canteenData",canteenData)
+    console.log("canteenData", canteenData)
     try {
       const response = await apiClient.post(
         `/canteen/updateCanteen`,
         canteenData,
         {
           headers: {
-            "Content-Type": "multipart/form-data",
+            "Content-Type": "application/json",
           },
         }
       );
@@ -113,7 +113,7 @@ export const canteenService = {
 };
 
 export const getCurrentUserData = {
-   getUserData: async () => {
+  getUserData: async () => {
     try {
       const response = await apiClient.get("/getProfile");
       return response.data;
@@ -131,7 +131,7 @@ export const itemService = {
     try {
       const response = await apiClient.post("/item/createItem", itemData, {
         headers: {
-          "Content-Type": "multipart/form-data",
+          "Content-Type": "application/json",
         },
       });
       return response.data;
@@ -169,7 +169,7 @@ export const itemService = {
     try {
       const response = await apiClient.post(`/item/updateItem`, itemData, {
         headers: {
-          "Content-Type": "multipart/form-data",
+          "Content-Type": "application/json",
         },
       });
       return response.data;
@@ -223,7 +223,7 @@ export const menuService = {
       throw error;
     }
   },
-  
+
   // Get all menus
   getAllMenus: async () => {
     try {
@@ -234,7 +234,7 @@ export const menuService = {
       throw error;
     }
   },
-  
+
   // Get menu by ID
   getMenuById: async (menuId: number) => {
     try {
@@ -245,11 +245,11 @@ export const menuService = {
       throw error;
     }
   },
-  
+
   // Update menu
   updateMenu: async (menuId: number, menuData: any) => {
     try {
-      console.log("first=========================",menuId,menuData)
+      console.log("first=========================", menuId, menuData)
       const response = await apiClient.post(`/menu/updateMenuWithItems/${menuId}`, menuData);
       return response.data;
     } catch (error) {
@@ -257,15 +257,15 @@ export const menuService = {
       throw error;
     }
   },
-  
+
   // Delete menu
   deleteMenu: async (menuId: number) => {
     try {
-      console.log("menuId",menuId)
-      const response = await apiClient.post(`/menu/deleteMenu`, { menuId } );
-      console.log("response",response)
+      console.log("menuId", menuId)
+      const response = await apiClient.post(`/menu/deleteMenu`, { menuId });
+      console.log("response", response)
       return response.status
-;
+        ;
     } catch (error) {
       console.error(`Error deleting menu with ID ${menuId}:`, error);
       throw error;
@@ -297,7 +297,7 @@ export const menuConfigService = {
   },
 
   // updateMenuConfiguration
-   updateMenuConfiguration: async (menuConfigurationData: MenuConfiguration) => {
+  updateMenuConfiguration: async (menuConfigurationData: MenuConfiguration) => {
     if (!menuConfigurationData.id) {
       throw new Error("Menu configuration ID is required for update.");
     }
@@ -328,7 +328,7 @@ export const adminDashboardService = {
       throw error;
     }
   },
-  
+
   // Get Orders count by canteen 
   getOrdersByCanteen: async () => {
     try {
@@ -343,7 +343,7 @@ export const adminDashboardService = {
   // Get total menus count (with optional canteenId filter)
   getTotalMenus: async (canteenId?: number) => {
     try {
-      const url = canteenId 
+      const url = canteenId
         ? `/adminDasboard/getTotalMenus?canteenId=${canteenId}`
         : `/adminDasboard/getTotalMenus`;
       const response = await apiClient.get(url);
@@ -357,7 +357,7 @@ export const adminDashboardService = {
   // Get total orders count (with optional canteenId filter)
   getTotalOrders: async (canteenId?: number, orderDate?: any) => {
     try {
-      console.log("orderDate",orderDate.orderDate)
+      console.log("orderDate", orderDate.orderDate)
       let url = "/adminDasboard/getTotalOrders";
       const params: string[] = [];
       if (canteenId !== undefined) {
@@ -369,7 +369,7 @@ export const adminDashboardService = {
       if (params.length > 0) {
         url += "?" + params.join("&");
       }
-      console.log("orderDate",url)
+      console.log("orderDate", url)
       const response = await apiClient.get(url);
       return response.data;
     } catch (error) {

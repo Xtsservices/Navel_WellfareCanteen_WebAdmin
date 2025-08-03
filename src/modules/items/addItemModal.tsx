@@ -9,15 +9,13 @@ import {
   Row,
   Col,
   Typography,
-  Upload,
   message,
   InputNumber,
 } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
-import { itemService } from "../../auth/apiService";
 import dayjs, { Dayjs } from "dayjs";
 import Loader from "../../components/common/loader";
 import { toastError, toastSuccess } from "../../components/common/toasterMessage";
+import { itemService } from "../../auth/apiService";
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -55,7 +53,6 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
 }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  const [fileList, setFileList] = useState<any[]>([]);
   const [errorDetails, setErrorDetails] = useState<string | null>(null);
   const editMode = !!selectedItem;
 
@@ -72,37 +69,18 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
         price: selectedItem.price,
         startDate: dayjs.unix(Number(selectedItem.startDate)),
         endDate: dayjs.unix(Number(selectedItem.endDate)),
-        itemImage: null, // Image handled separately
+        imageUrl: selectedItem.image,
       });
-      // Set fileList for existing image
-      setFileList([
-        {
-          uid: "-1",
-          name: "existing-image.png",
-          status: "done",
-          url: selectedItem.image,
-        },
-      ]);
     } else if (isOpen) {
       // Reset form for add mode
       form.resetFields();
-      setFileList([]);
     }
   }, [isOpen, selectedItem, form]);
 
   const handleCancel = () => {
     setErrorDetails(null);
     form.resetFields();
-    setFileList([]);
     onCancel();
-  };
-
-  // Helper function to log FormData contents for debugging
-  const logFormData = (formData: FormData) => {
-    console.log("FormData contents:");
-    for (const [key, value] of formData.entries()) {
-      console.log(`${key}: ${value}`);
-    }
   };
 
   const handleOk = async () => {
@@ -111,51 +89,40 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
       setErrorDetails(null);
       const values = await form.validateFields();
 
-      const formData = new FormData();
+      // Create a plain object instead of FormData
+      const itemData: any = {
+        type: values.type.trim(),
+        description: values.description.trim(),
+        quantity: values.quantity,
+        quantityUnit: values.quantityUnit,
+        price: values.price,
+        image: values.imageUrl.trim(),
+        startDate: values.startDate ? values.startDate.format("DD-MM-YYYY") : undefined,
+        endDate: values.endDate ? values.endDate.format("DD-MM-YYYY") : undefined,
+      };
 
       // Add mode: Include name
       if (!editMode) {
-        formData.append("name", values.name.trim());
+        itemData.name = values.name.trim();
       }
-
-      // Include type for both modes
-      formData.append("type", values.type.trim());
 
       // Edit mode: Include id
       if (editMode && values.id) {
-        formData.append("id", values.id.toString());
+        itemData.id = values.id;
       }
 
-      // Common fields for both modes
-      formData.append("description", values.description.trim());
-      formData.append("quantity", values.quantity.toString());
-      formData.append("quantityUnit", values.quantityUnit);
-      formData.append("price", values.price.toString());
-
-      if (values.startDate) {
-        formData.append("startDate", values.startDate.format("DD-MM-YYYY"));
-      }
-      if (values.endDate) {
-        formData.append("endDate", values.endDate.format("DD-MM-YYYY"));
-      }
-
-      if (fileList.length > 0 && fileList[0].originFileObj) {
-        formData.append("image", fileList[0].originFileObj);
-      }
-
-      // Log FormData to debug contents
-      logFormData(formData);
+      // Log itemData for debugging
+      console.log("Item data:", itemData);
 
       if (editMode && selectedItem) {
-        await itemService.updateItem(formData);
+        await itemService.updateItem(itemData);
         toastSuccess("Item updated successfully!");
       } else {
-        await itemService.createItem(formData);
+        await itemService.createItem(itemData);
         toastSuccess("Item added successfully!");
       }
 
       form.resetFields();
-      setFileList([]);
       onSubmit(values);
       onSuccess();
       handleCancel();
@@ -178,29 +145,15 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
     height: "40px",
   };
 
-  const handleFileChange = ({ fileList }: any) => {
-    setFileList(fileList);
-  };
-
-  // Custom validation for file upload
-  const validateFileUpload = () => {
-    if (fileList.length === 0) {
-      return Promise.reject("Please upload an item image");
+  // Custom validation for URL
+  const validateImageUrl = (_: any, value: string) => {
+    if (!value || value.trim() === "") {
+      return Promise.reject("Please enter an image URL");
     }
-
-    const file = fileList[0]?.originFileObj;
-    if (file) {
-      const isImage = file.type.startsWith("image/");
-      const isLt2M = file.size / 1024 / 1024 < 2;
-
-      if (!isImage) {
-        return Promise.reject("You can only upload image files!");
-      }
-      if (!isLt2M) {
-        return Promise.reject("Image must be smaller than 2MB!");
-      }
+    const urlPattern = /^(https?:\/\/[^\s/$.?#].[^\s]*)$/i;
+    if (!urlPattern.test(value)) {
+      return Promise.reject("Please enter a valid URL");
     }
-
     return Promise.resolve();
   };
 
@@ -377,7 +330,6 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
                 step={0.01}
                 precision={2}
                 formatter={(value) => `₹ ${value}`}
-                // parser={(value) => Number(value?.replace(/₹\s?/g, "") || 0)}
               />
             </Form.Item>
           </Col>
@@ -420,35 +372,18 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
         <Row gutter={24}>
           <Col xs={24}>
             <Form.Item
-              name="itemImage"
-              label="Item Image"
+              name="imageUrl"
+              label="Item Image URL"
               rules={[
-                { required: !editMode, message: "Please upload an item image" },
-                { validator: validateFileUpload },
+                { required: true, message: "Please enter an image URL" },
+                { validator: validateImageUrl },
               ]}
+              style={formItemStyle}
             >
-              <Upload
-                listType="picture"
-                maxCount={1}
-                fileList={fileList}
-                onChange={handleFileChange}
-                beforeUpload={(file) => {
-                  const isImage = file.type.startsWith("image/");
-                  if (!isImage) {
-                    message.error("You can only upload image files!");
-                  }
-                  const isLt2M = file.size / 1024 / 1024 < 2;
-                  if (!isLt2M) {
-                    message.error("Image must be smaller than 2MB!");
-                  }
-                  return false;
-                }}
-              >
-                <Button icon={<UploadOutlined />}>Upload Item Image</Button>
-                <Text type="secondary" style={{ marginLeft: 8 }}>
-                  Supported formats: JPG, PNG. Max size: 2MB
-                </Text>
-              </Upload>
+              <Input
+                placeholder="Enter image URL (e.g., https://example.com/image)"
+                style={inputStyle}
+              />
             </Form.Item>
           </Col>
         </Row>

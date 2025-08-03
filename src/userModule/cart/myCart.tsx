@@ -219,7 +219,7 @@ const MyCart: React.FC = () => {
                 <img
                   src={
                     item.item.image
-                      ? `data:image/png;base64,${item.item.image}`
+                      ? item.item.image
                       : "https://via.placeholder.com/80"
                   }
                   alt="item"
