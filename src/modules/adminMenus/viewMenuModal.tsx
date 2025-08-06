@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Modal,
   Button,
@@ -37,9 +37,11 @@ const ViewMenuModal: React.FC<ViewMenuModalProps> = ({
     useState<MenuConfiguration | null>(null);
   const [, setCanteen] = useState<any | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+const hasFetchItems = useRef(false);
 
   useEffect(() => {
-    if (visible && menu) {
+    if (visible && menu && !hasFetchItems.current) {
+      hasFetchItems.current = true; // ✅ Prevent future fetch attempts
       fetchData();
     }
   }, [visible, menu]);

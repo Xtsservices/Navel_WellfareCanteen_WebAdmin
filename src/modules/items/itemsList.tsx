@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Card,
   Row,
@@ -46,6 +46,7 @@ interface ItemProps {
 
 
 const ItemsList: React.FC = () => {
+  const hasFetchItems = useRef(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [items, setItems] = useState<ItemProps[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -55,7 +56,11 @@ const ItemsList: React.FC = () => {
   const [selectedItem, setSelectedItem] = useState<ItemProps | null>(null);
 
   useEffect(() => {
-    fetchItems();
+    if(!hasFetchItems.current) {
+      hasFetchItems.current = true; 
+      fetchItems();
+    }
+    
   }, []);
 
   const fetchItems = async () => {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import UserHeader from "./userComponents/UserHeader";
@@ -80,6 +80,8 @@ type MenuData = Record<string, Record<string, MenuItem[]>>;
 const SelectMenu: React.FC = () => {
   const [menus, setMenus] = useState<MenuData>({});
   const [loading, setLoading] = useState(true);
+const hasfetchMenus = useRef(false);
+
 const navigate = useNavigate();
   useEffect(() => {
     const fetchMenus = async () => {
@@ -103,7 +105,10 @@ const navigate = useNavigate();
       }
       setLoading(false);
     };
-    fetchMenus();
+    if(!hasfetchMenus.current) {
+      hasfetchMenus.current = true;
+      fetchMenus();
+    }
   }, []);
 
   return (

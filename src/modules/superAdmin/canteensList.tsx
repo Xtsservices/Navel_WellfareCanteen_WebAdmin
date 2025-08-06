@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Card,
   Row,
@@ -28,6 +28,8 @@ interface CanteenProps {
 }
 
 const CanteenList: React.FC = () => {
+  const hasFetchedCanteens = useRef(false);
+  const hasGetOrders = useRef(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [canteens, setCanteens] = useState<CanteenProps[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -37,20 +39,19 @@ const CanteenList: React.FC = () => {
     null
   );
 
-  useEffect(() => {
-    fetchCanteens();
-  }, []);
 
-  useEffect(() => {
+
+  const getOrdersByCanteen = () => {
     adminDashboardService
       .getOrdersByCanteen()
       .then((response) => {
         setCountsData(response.data);
       })
       .catch((error) => {
-        console.log(error);
+        console.error("Error fetching orders by canteen:", error);
       });
-  }, []);
+  }
+
 
   const fetchCanteens = async () => {
     try {
@@ -145,6 +146,19 @@ const CanteenList: React.FC = () => {
       </Button>
     </div>
   );
+
+    useEffect(() => {
+    if(!hasFetchedCanteens.current) {
+      hasFetchedCanteens.current = true;
+      fetchCanteens();
+    }
+    if(!hasGetOrders.current) {
+      hasGetOrders.current = true;
+      getOrdersByCanteen();
+    }
+    
+  }, []);
+
 
   return (
     <Layout>
