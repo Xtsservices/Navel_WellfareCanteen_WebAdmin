@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { Row, Col, Card, Typography, Space } from "antd";
 import canteenImg from "../../assets/images/canteens.jpg";
 import menuImage from "../../assets/images/menu.jpg";
-import ordersImage from "../../assets/images/orders.jpg";
 import itemsImage from "../../assets/images/items.jpg";
 import { adminDashboardService } from "../../auth/apiService";
 
@@ -12,16 +11,31 @@ const { Title, Text } = Typography;
 const SuperAdminDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [countsData, setCountsData] = React.useState<any>({});
+const hasDashboardDataRef = React.useRef(false);
 
   useEffect(() => {
-    adminDashboardService
-      .getDashboardMainCounts()
-      .then((response) => {
+    const getDashboardData = async () => {
+      try {
+        const response = await adminDashboardService.getDashboardMainCounts();
         setCountsData(response.data);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.log(error);
-      });
+      }
+    }
+
+    // adminDashboardService
+    //   .getDashboardMainCounts()
+    //   .then((response) => {
+    //     setCountsData(response.data);
+    //   })
+    //   .catch((error) => {
+    //     console.log(error);
+    //   });
+
+      if (!hasDashboardDataRef.current) {
+        hasDashboardDataRef.current = true;
+        getDashboardData()
+      }
   },[])
   
 
