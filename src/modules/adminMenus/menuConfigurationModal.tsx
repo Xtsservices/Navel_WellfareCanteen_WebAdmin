@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Form,
   TimePicker,
@@ -58,6 +58,7 @@ const MenuConfigurationModal: React.FC<MenuConfigurationModalProps> = ({
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [configsLoading, setConfigsLoading] = useState<boolean>(true);
+const hasFetchItems = useRef(false);
 
   const formatTimeToDateObj = (timeString: string) => {
     return timeString ? dayjs(timeString, "hh:mm A") : null;
@@ -89,7 +90,8 @@ const MenuConfigurationModal: React.FC<MenuConfigurationModalProps> = ({
       }
     };
 
-    if (visible) {
+    if (visible && !hasFetchItems.current) {
+      hasFetchItems.current = true; // ✅ Prevent future fetch attempts
       loadMenuConfigurations();
     } else {
       resetForm();
@@ -135,8 +137,8 @@ const MenuConfigurationModal: React.FC<MenuConfigurationModalProps> = ({
       onSuccess();
       resetForm();
       // Reload configurations
-      const configs = await menuConfigService.getAllMenuConfigurations();
-      setMenuConfigurations(configs?.data || []);
+      // const configs = await menuConfigService.getAllMenuConfigurations();
+      // setMenuConfigurations(configs?.data || []);
     } catch (err) {
       const errorMessage = editId
         ? "Failed to update menu configuration!!"

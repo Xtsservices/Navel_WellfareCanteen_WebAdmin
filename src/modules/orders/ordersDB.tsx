@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Card, Row, Col, Table, Empty } from "antd";
 import { DollarCircleOutlined, ShoppingCartOutlined, CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import BackHeader from "../../components/common/backHeader";
@@ -130,9 +130,13 @@ const OrdersDashboard: React.FC = () => {
   const month = String(today.getMonth() + 1).padStart(2, "0");
   const day = String(today.getDate()).padStart(2, "0");
   const [selectedDate, setSelectedDate] = useState<string>(`${year}-${month}-${day}`);
+const hasFechOrders = useRef(false);
 
   useEffect(() => {
-    fetchOrders();
+    if(!hasFechOrders.current) {
+hasFechOrders.current = true
+fetchOrders();
+    }
   }, [selectedDate]);
 
   const fetchOrders = async () => {
@@ -164,6 +168,7 @@ const OrdersDashboard: React.FC = () => {
 
   // Date change handler
   const handleDateChange = (date: string) => {
+hasFechOrders.current = false
     setSelectedDate(date);
   };
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Empty,
   message,
@@ -43,6 +43,7 @@ import { createGlobalStyle } from "styled-components";
 const { Paragraph, Text } = Typography;
 
 const MenuList: React.FC = () => {
+  const hasFetchItems = useRef(false);
   const [menus, setMenus] = useState<Menu[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [isAddModalVisible, setIsAddModalVisible] = useState<boolean>(false);
@@ -73,8 +74,13 @@ const MenuList: React.FC = () => {
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
+ 
   useEffect(() => {
-    fetchMenus();
+    if(!hasFetchItems.current) {
+      hasFetchItems.current = true; // ✅ Prevent future fetch attempts
+      fetchMenus();
+    }
+    
   }, []);
 
   useEffect(() => {

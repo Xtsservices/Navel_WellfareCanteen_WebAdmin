@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Layout,
   Avatar,
@@ -37,6 +37,7 @@ const UserHeader: React.FC<HeaderProps> = ({ headerText }) => {
   const [drawerVisible, setDrawerVisible] = useState<boolean>(false);
   const navigate = useNavigate();
   const myCartItems = useSelector((state: AppState) => state.myCartItems);
+const hasFetchCartdata = useRef(false);
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -50,7 +51,10 @@ const UserHeader: React.FC<HeaderProps> = ({ headerText }) => {
   }, []);
 
   const GetCartDate = async () => {
-     await fetchCartData();
+    if(!hasFetchCartdata.current) {
+      hasFetchCartdata.current = true;
+      await fetchCartData();
+    }
   };
 
   const handleNavigation = (path: string) => {

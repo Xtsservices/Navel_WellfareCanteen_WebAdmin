@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { CartData, CartItemsState } from "../userModuleTypes/cartTypes";
 
@@ -56,7 +56,7 @@ const MenuByItems: React.FC = () => {
   const [cartUpdated, setCartUpdated] = useState(false);
   const [updateLoading, setUpdateLoading] = useState<string | null>(null);
   const [error, setError] = useState("");
-
+const hasfetchMenuItems = useRef(false);
   const navigate = useNavigate();
   const { id } = useParams();
   const menuId = id;
@@ -254,7 +254,10 @@ const MenuByItems: React.FC = () => {
       return;
     }
     // Fetch menu items when the component mounts
-    fetchMenuItems();
+    if(!hasfetchMenuItems.current) {
+      hasfetchMenuItems.current = true;
+      fetchMenuItems();
+    }
     // Fetch cart data when the component mounts
     getCartData();
   }, [cartUpdated, id]);

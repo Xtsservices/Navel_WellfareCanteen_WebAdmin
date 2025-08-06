@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Modal,
   Form,
@@ -55,9 +55,10 @@ const EditMenuModal: React.FC<EditMenuModalProps> = ({
   const [loadingConfigs, setLoadingConfigs] = useState<boolean>(false);
   const [loadingCanteens, setLoadingCanteens] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState<boolean>(false);
-
+const hasFetchItems = useRef(false);
   useEffect(() => {
-    if (visible) {
+    if (visible && !hasFetchItems.current) {
+      hasFetchItems.current = true; // ✅ Prevent future fetch attempts
       fetchItems();
       fetchMenuConfigurations();
       fetchCanteens();

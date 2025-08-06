@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Card, Row, Col, Typography, Spin, message, Button } from "antd";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -21,6 +21,7 @@ const UserSelectCanteen: React.FC = () => {
   const [canteens, setCanteens] = useState<Canteen[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const navigate = useNavigate();
+const hasFectchCanteens = useRef(false);
 
   useEffect(() => {
     const fetchCanteens = async () => {
@@ -41,7 +42,10 @@ const UserSelectCanteen: React.FC = () => {
         setLoading(false);
       }
     };
-    fetchCanteens();
+if(!hasFectchCanteens.current) {
+      hasFectchCanteens.current = true; 
+      fetchCanteens();
+}
   }, []);
 
   const handleSelect = (canteen: Canteen) => {
