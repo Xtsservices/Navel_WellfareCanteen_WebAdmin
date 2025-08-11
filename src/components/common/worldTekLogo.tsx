@@ -5,16 +5,18 @@ import footerLogo from "../../assets/images/footerLogo.png";
 const WorldtekLogo: React.FC = () => {
   return (
     <div
-      style={{ textAlign: "center", marginTop: "27px", marginBottom: "0px" }}
+      style={{ textAlign: "center", marginTop: "1px", marginBottom: "0px" }}
     >
       <Space align="center">
         <div style={{ marginTop: "10px" }}>
           <Typography.Text
             style={{
-              color: "#333",
+              color: "gray",
               fontSize: "15px",
               fontWeight: 400,
               marginTop: "50px",
+              fontFamily: "Poppins, sans-serif",
+              fontStyle:"italic"
             }}
           >
             Powered by
