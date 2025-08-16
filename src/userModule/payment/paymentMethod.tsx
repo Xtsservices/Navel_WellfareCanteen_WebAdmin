@@ -157,6 +157,7 @@ console.log("rawLink",rawLink)
       }
     } catch (error: any) {
       const message = error?.response?.data?.message;
+      console.error("Payment message", message);
       toastError(message);
       console.error("Payment error:", error);
     } finally {

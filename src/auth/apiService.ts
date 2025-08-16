@@ -329,6 +329,48 @@ export const adminDashboardService = {
     }
   },
 
+ 
+  // Get all orders with query params
+getAllOrders: async (params: {
+  page?: number;
+  limit?: number;
+  mobile?: string;
+  date?: string;
+}) => {
+  try {
+    let formattedParams = { ...params };
+
+    if (params.date) {
+      // Convert "2025-08-15" → "15-08-2025"
+      const [year, month, day] = params.date.split("-");
+      formattedParams.date = `${day}-${month}-${year}`;
+    }
+
+    console.log("formattedDate", formattedParams.date);
+
+    const response = await apiClient.get(`/adminDasboard/getOrders`, {
+      params: formattedParams,
+    });
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching orders`, error);
+    throw error;
+  }
+},
+
+
+  getOrderbyid: async (params: { id: number }) => {
+  try {
+    const response = await apiClient.get(`/order/getOrderById?id=${params.id}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching order by id`, error);
+    throw error;
+  }
+},
+
+
+
   // Get Orders count by canteen 
   getOrdersByCanteen: async () => {
     try {

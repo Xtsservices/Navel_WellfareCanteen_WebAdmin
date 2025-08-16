@@ -41,6 +41,7 @@ import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "./store/storeTypes";
 import { getCurrentUserData } from "./auth/apiService";
+import OrdersInfo from "./modules/superAdmin/OrdersInfo";
 
 const App = () => {
   const hasFetchedUser = useRef(false);
@@ -87,6 +88,7 @@ const App = () => {
         <Route element={<ProtectedRoute />}>
           <Route element={<LayoutWrapper pageTitle="Naval Dashboard" />}>
             <Route path="/dashboard" element={<SuperAdminDashboard />} />
+            <Route path="/Orders-info" element={<OrdersInfo />} />
             <Route path="/finance-management" element={<FinanceDB />} />
             <Route path="/inventory-management" element={<InventoryDB />} />
             <Route path="/billing" element={<Billing />} />

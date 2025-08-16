@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Row, Col, Card, Typography, Space } from "antd";
 import canteenImg from "../../assets/images/canteens.jpg";
 import menuImage from "../../assets/images/menu.jpg";
+import allorders from "../../assets/images/orders_all.jpg";
 import itemsImage from "../../assets/images/items.jpg";
 import { adminDashboardService } from "../../auth/apiService";
 
@@ -49,6 +50,9 @@ const hasDashboardDataRef = React.useRef(false);
     } else if (cardName === "Orders") {
       navigate("/orders");
     }
+     else if (cardName === "Orders-info") {
+      navigate("/Orders-info");
+    }
   };
 
   const statCards = [
@@ -62,7 +66,7 @@ const hasDashboardDataRef = React.useRef(false);
     { title: "Canteens", image: canteenImg },
     { title: "Items", image: itemsImage },
     { title: "Menu", image: menuImage },
-    // { title: "Orders", image: ordersImage },
+    { title: "Orders-info", image: allorders },
   ];
 
   return (
@@ -109,7 +113,7 @@ const hasDashboardDataRef = React.useRef(false);
 
         <Row gutter={[16, 16]}>
           {featureCards.map((feature, index) => (
-            <Col xs={24} sm={12} md={8} key={index}>
+            <Col xs={24} sm={12} md={6} key={index}>
               <Space
                 direction="vertical"
                 style={{ width: "100%", textAlign: "center" }}
