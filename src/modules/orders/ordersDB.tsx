@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from "react";
 import { Card, Row, Col, Table, Empty } from "antd";
 import { DollarCircleOutlined, ShoppingCartOutlined, CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
@@ -85,11 +86,10 @@ const StatCard: React.FC<StatCardProps> = ({ icon, value, title }) => {
 };
 
 interface ItemWiseCount {
-  itemName: string;
-  totalQuantity: string;
-  menuConfigurationName: string;
   itemId: number;
-  menuConfigurationId: number;
+  itemName: string;
+  menuName: string;
+  totalQuantity: string;
 }
 
 interface DashboardData {
@@ -102,7 +102,7 @@ interface DashboardData {
 }
 
 const OrdersDashboard: React.FC = () => {
-  const route = useParams();
+  const route = useParams<{ canteenId?: string; canteenName?: string }>();
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(false);
   const today = new Date();
@@ -155,9 +155,9 @@ const OrdersDashboard: React.FC = () => {
     setSelectedDate(formattedDate);
   };
 
-  // Group itemWiseCounts by menuConfigurationName
+  // Group itemWiseCounts by menuName
   const groupedByMenu = dashboardData?.itemWiseCounts?.reduce((acc, item) => {
-    const menuName = item.menuConfigurationName;
+    const menuName = item.menuName || "Unknown";
     if (!acc[menuName]) {
       acc[menuName] = [];
     }
@@ -165,17 +165,25 @@ const OrdersDashboard: React.FC = () => {
     return acc;
   }, {} as Record<string, ItemWiseCount[]>);
 
-  // Prepare table data for each menuConfigurationName
+  // Prepare table data for each menuName
   const getTableData = (menuName: string) => {
     return (groupedByMenu?.[menuName] || []).map((item, index) => ({
-      key: `${menuName}-${item.itemName}-${index}`,
+      key: `${menuName}-${item.itemId}-${index}`,
+      sl: index + 1,
       itemName: item.itemName,
-      totalOrdered: parseInt(item.totalQuantity), // Convert string to number
+      totalQuantity: parseInt(item.totalQuantity), // Convert string to number
     }));
   };
 
   // Table columns
   const columns = [
+    {
+      title: "SL",
+      dataIndex: "sl",
+      key: "sl",
+      width: 60,
+      render: (text: number) => <span style={{ fontSize: "16px" }}>{text}</span>,
+    },
     {
       title: "Item Name",
       dataIndex: "itemName",
@@ -184,8 +192,9 @@ const OrdersDashboard: React.FC = () => {
     },
     {
       title: "Quantity",
-      dataIndex: "totalOrdered",
-      key: "totalOrdered",
+      dataIndex: "totalQuantity",
+      key: "totalQuantity",
+      width: 100,
       render: (text: number) => <span style={{ fontSize: "16px" }}>{text}</span>,
     },
   ];
@@ -194,7 +203,7 @@ const OrdersDashboard: React.FC = () => {
   const statCards = [
     {
       icon: <DollarCircleOutlined />,
-      value: `₹ ${dashboardData?.totalAmount || 0}`,
+      value: `₹${dashboardData?.totalAmount || 0}`,
       title: "Total Revenue",
     },
     {
@@ -226,7 +235,7 @@ const OrdersDashboard: React.FC = () => {
       <BackHeader
         path={
           route?.canteenName && route?.canteenId
-            ? `/canteens-list/canteen-dashboard/${route?.canteenId}/${route?.canteenName}`
+            ? `/canteens-list/canteen-dashboard/${route.canteenId}/${route.canteenName}`
             : `/dashboard`
         }
         title={
@@ -281,9 +290,25 @@ const OrdersDashboard: React.FC = () => {
         <Empty description={`No orders available on this date (${selectedDate})`} />
       ) : (
         <div>
-          <h3 style={{ marginBottom: "16px" }}>Date: {selectedDate}</h3>
+          <h3 style={{ marginBottom: "16px", fontSize: "18px", fontWeight: "600" }}>
+            Date: {selectedDate}
+          </h3>
           {Object.keys(groupedByMenu || {}).sort().map((menuName) => (
-            <Card key={menuName} style={{ marginBottom: "16px" }}>
+            <Card
+              key={menuName}
+              title={menuName}
+              style={{
+                marginBottom: "16px",
+                borderRadius: "8px",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+              }}
+              headStyle={{
+                fontSize: "18px",
+                fontWeight: "600",
+                color: "#1890ff",
+                padding: "12px",
+              }}
+            >
               <Table
                 columns={columns}
                 dataSource={getTableData(menuName)}
@@ -291,6 +316,7 @@ const OrdersDashboard: React.FC = () => {
                 size="small"
                 rowKey="key"
                 loading={loading}
+                style={{ backgroundColor: "#fff", borderRadius: "8px" }}
               />
             </Card>
           ))}
