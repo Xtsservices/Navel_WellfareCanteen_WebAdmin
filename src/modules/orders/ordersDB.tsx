@@ -86,7 +86,7 @@ const StatCard: React.FC<StatCardProps> = ({ icon, value, title }) => {
 
 interface ItemWiseCount {
   itemName: string;
-  totalOrdered: string;
+  totalQuantity: string;
   menuConfigurationName: string;
   itemId: number;
   menuConfigurationId: number;
@@ -170,7 +170,7 @@ const OrdersDashboard: React.FC = () => {
     return (groupedByMenu?.[menuName] || []).map((item, index) => ({
       key: `${menuName}-${item.itemName}-${index}`,
       itemName: item.itemName,
-      totalOrdered: parseInt(item.totalOrdered), // Convert string to number
+      totalOrdered: parseInt(item.totalQuantity), // Convert string to number
     }));
   };
 
@@ -210,7 +210,7 @@ const OrdersDashboard: React.FC = () => {
     {
       icon: <CloseCircleOutlined />,
       value: dashboardData?.cancelled?.count || 0,
-      title: "Total Canceled",
+      title: "Total Cancelled",
     },
   ];
 
@@ -283,7 +283,7 @@ const OrdersDashboard: React.FC = () => {
         <div>
           <h3 style={{ marginBottom: "16px" }}>Date: {selectedDate}</h3>
           {Object.keys(groupedByMenu || {}).sort().map((menuName) => (
-            <Card key={menuName} title={menuName} style={{ marginBottom: "16px" }}>
+            <Card key={menuName} style={{ marginBottom: "16px" }}>
               <Table
                 columns={columns}
                 dataSource={getTableData(menuName)}
