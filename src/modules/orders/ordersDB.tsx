@@ -84,58 +84,38 @@ const StatCard: React.FC<StatCardProps> = ({ icon, value, title }) => {
   );
 };
 
-interface Order {
-  createdAt: number;
-  updatedAt: number;
-  id: number;
-  orderDate: number;
-  orderNo: string;
-  totalAmount: number;
-  status: string;
-  canteenId: number;
+interface ItemWiseCount {
+  itemName: string;
+  totalOrdered: string;
+  menuConfigurationName: string;
+  itemId: number;
   menuConfigurationId: number;
-  orderCanteen: { id: number; canteenName: string };
-  orderItems: Array<{
-    id: number;
-    quantity: number;
-    price: number;
-    total: number;
-    itemId: number;
-    menuItemItem: {
-      id: number;
-      name: string;
-      description: string;
-      type: string;
-      status: string;
-      quantity: number;
-      quantityUnit: string;
-    };
-  }>;
-  menuName: string;
 }
 
-interface TableData {
-  key: string;
-  itemName: string;
-  quantity: number;
-  quantityUnit: string;
+interface DashboardData {
+  totalAmount: number;
+  placed: { count: number };
+  completed: { count: number };
+  cancelled: { count: number };
+  totalOrders: number;
+  itemWiseCounts: ItemWiseCount[];
 }
 
 const OrdersDashboard: React.FC = () => {
   const route = useParams();
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(false);
   const today = new Date();
   const year = today.getFullYear();
   const month = String(today.getMonth() + 1).padStart(2, "0");
   const day = String(today.getDate()).padStart(2, "0");
-  const [selectedDate, setSelectedDate] = useState<string>(`${year}-${month}-${day}`);
-const hasFechOrders = useRef(false);
+  const [selectedDate, setSelectedDate] = useState<string>(`${day}-${month}-${year}`);
+  const hasFetchedOrders = useRef(false);
 
   useEffect(() => {
-    if(!hasFechOrders.current) {
-hasFechOrders.current = true
-fetchOrders();
+    if (!hasFetchedOrders.current) {
+      hasFetchedOrders.current = true;
+      fetchOrders();
     }
   }, [selectedDate]);
 
@@ -143,7 +123,7 @@ fetchOrders();
     try {
       setLoading(true);
       let response;
-      const formattedDate = selectedDate.replace(/-/g, '/'); // Convert YYYY-MM-DD to YYYY/MM/DD
+      const formattedDate = selectedDate; // Use dd-mm-yyyy as is
       if (route?.canteenId) {
         response = await adminDashboardService.getTotalOrders(
           parseInt(route?.canteenId),
@@ -157,7 +137,7 @@ fetchOrders();
       }
 
       if (response && response?.data) {
-        setOrders(response.data);
+        setDashboardData(response.data);
       }
     } catch (error) {
       console.error("Error fetching orders:", error);
@@ -168,40 +148,29 @@ fetchOrders();
 
   // Date change handler
   const handleDateChange = (date: string) => {
-hasFechOrders.current = false
-    setSelectedDate(date);
+    // Convert YYYY-MM-DD from input to DD-MM-YYYY
+    const [year, month, day] = date.split("-");
+    const formattedDate = `${day}-${month}-${year}`;
+    hasFetchedOrders.current = false;
+    setSelectedDate(formattedDate);
   };
 
-  // Group orders by menuName, summing quantities by itemName and collecting quantityUnit (excluding canceled orders)
-  const groupedByMenu = orders.reduce((acc, order) => {
-    if (order.status === "canceled") {
-      return acc; // Skip canceled orders
-    }
-    const menuName = order.menuName; // Use menuName directly without index
-    
+  // Group itemWiseCounts by menuConfigurationName
+  const groupedByMenu = dashboardData?.itemWiseCounts?.reduce((acc, item) => {
+    const menuName = item.menuConfigurationName;
     if (!acc[menuName]) {
-      acc[menuName] = {};
+      acc[menuName] = [];
     }
-    
-    order.orderItems.forEach(item => {
-      const itemName = item.menuItemItem.name;
-      const quantityUnit = item.menuItemItem.quantityUnit;
-      if (!acc[menuName][itemName]) {
-        acc[menuName][itemName] = { quantity: 0, quantityUnit };
-      }
-      acc[menuName][itemName].quantity += item.quantity;
-    });
-    
+    acc[menuName].push(item);
     return acc;
-  }, {} as Record<string, Record<string, { quantity: number; quantityUnit: string }>>);
+  }, {} as Record<string, ItemWiseCount[]>);
 
-  // Prepare table data for each menuName
+  // Prepare table data for each menuConfigurationName
   const getTableData = (menuName: string) => {
-    return Object.entries(groupedByMenu[menuName] || {}).map(([itemName, { quantity, quantityUnit }], index) => ({
-      key: `${menuName}-${itemName}-${index}`,
-      itemName,
-      quantity,
-      quantityUnit,
+    return (groupedByMenu?.[menuName] || []).map((item, index) => ({
+      key: `${menuName}-${item.itemName}-${index}`,
+      itemName: item.itemName,
+      totalOrdered: parseInt(item.totalOrdered), // Convert string to number
     }));
   };
 
@@ -215,54 +184,43 @@ hasFechOrders.current = false
     },
     {
       title: "Quantity",
-      dataIndex: "quantity",
-      key: "quantity",
+      dataIndex: "totalOrdered",
+      key: "totalOrdered",
       render: (text: number) => <span style={{ fontSize: "16px" }}>{text}</span>,
-    },
-    {
-      title: "Unit",
-      dataIndex: "quantityUnit",
-      key: "quantityUnit",
-      render: (text: string) => <span style={{ fontSize: "16px" }}>{text}</span>,
     },
   ];
 
-  // Calculate stats from orders
-  const totalRevenue = orders.reduce((sum, order) => sum + order.totalAmount, 0);
-  const totalOrders = orders.length;
-  const totalDelivered = orders.filter(order => order.status === "completed").length;
-  const totalCanceled = orders.filter(order => order.status === "canceled").length;
-
+  // Calculate stats from dashboardData
   const statCards = [
     {
       icon: <DollarCircleOutlined />,
-      value: `₹ ${totalRevenue}`,
+      value: `₹ ${dashboardData?.totalAmount || 0}`,
       title: "Total Revenue",
     },
     {
       icon: <ShoppingCartOutlined />,
-      value: totalOrders,
+      value: dashboardData?.totalOrders || 0,
       title: "Total Orders",
     },
     {
       icon: <CheckCircleOutlined />,
-      value: totalDelivered,
+      value: dashboardData?.completed?.count || 0,
       title: "Total Delivered",
     },
     {
       icon: <CloseCircleOutlined />,
-      value: totalCanceled,
+      value: dashboardData?.cancelled?.count || 0,
       title: "Total Canceled",
     },
   ];
 
   return (
-    <div 
-      style={{ 
-        padding: "clamp(12px, 3vw, 20px)", 
+    <div
+      style={{
+        padding: "clamp(12px, 3vw, 20px)",
         paddingTop: "2px",
         maxWidth: "100vw",
-        overflow: "hidden"
+        overflow: "hidden",
       }}
     >
       <BackHeader
@@ -276,11 +234,11 @@ hasFechOrders.current = false
             ? `Orders Dashboard | ${route.canteenName}`
             : "Orders Dashboard"
         }
-        styles={{ 
+        styles={{
           marginBottom: "clamp(12px, 3vw, 20px)",
         }}
       />
-      
+
       {/* Date Filter */}
       <Row style={{ marginBottom: "clamp(12px, 3vw, 20px)" }} justify="end">
         <Col>
@@ -297,44 +255,34 @@ hasFechOrders.current = false
               marginTop: 8,
               fontSize: "14px",
             }}
-            value={selectedDate}
+            value={selectedDate.split("-").reverse().join("-")} // Convert DD-MM-YYYY to YYYY-MM-DD for input
             onChange={(e) => handleDateChange(e.target.value)}
           />
         </Col>
       </Row>
 
       {/* Stats Grid */}
-      <Row 
+      <Row
         gutter={[
-          { xs: 12, sm: 16, md: 20, lg: 24 }, 
-          { xs: 12, sm: 16, md: 20, lg: 24 }
+          { xs: 12, sm: 16, md: 20, lg: 24 },
+          { xs: 12, sm: 16, md: 20, lg: 24 },
         ]}
         style={{ marginBottom: "clamp(20px, 5vw, 35px)" }}
       >
         {statCards.map((card, index) => (
-          <Col 
-            key={index}
-            xs={12}
-            sm={12}
-            md={8}
-            lg={6}
-          >
-            <StatCard
-              icon={card.icon}
-              value={card.value}
-              title={card.title}
-            />
+          <Col key={index} xs={12} sm={12} md={8} lg={6}>
+            <StatCard icon={card.icon} value={card.value} title={card.title} />
           </Col>
         ))}
       </Row>
 
       {/* Orders Table */}
-      {Object.keys(groupedByMenu).length === 0 ? (
+      {!dashboardData || dashboardData.itemWiseCounts.length === 0 ? (
         <Empty description={`No orders available on this date (${selectedDate})`} />
       ) : (
         <div>
           <h3 style={{ marginBottom: "16px" }}>Date: {selectedDate}</h3>
-          {Object.keys(groupedByMenu).sort().map(menuName => (
+          {Object.keys(groupedByMenu || {}).sort().map((menuName) => (
             <Card key={menuName} title={menuName} style={{ marginBottom: "16px" }}>
               <Table
                 columns={columns}
@@ -342,6 +290,7 @@ hasFechOrders.current = false
                 pagination={false}
                 size="small"
                 rowKey="key"
+                loading={loading}
               />
             </Card>
           ))}
