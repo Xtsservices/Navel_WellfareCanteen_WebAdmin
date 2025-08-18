@@ -24,7 +24,7 @@ const Footer: React.FC = () => {
         }}
       >
         <div>
-          © {currentYear} Navel Docyard. All rights reserved. | Powered by{" "}
+          © {currentYear} Naval Docyard. All rights reserved. | Powered by{" "}
         </div>
 
         <img

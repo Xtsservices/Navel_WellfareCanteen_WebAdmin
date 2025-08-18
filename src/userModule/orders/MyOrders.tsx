@@ -414,7 +414,7 @@ const MyOrders: React.FC = () => {
                           }}
                         >
                           <span style={{ color: "#666666", fontWeight: "500" }}>
-                            Date:
+                            Booked For:
                           </span>
                           <span style={{ color: "#333333", fontWeight: "600" }}>
                             {formatDateForQR(order.orderDate)}
@@ -429,10 +429,10 @@ const MyOrders: React.FC = () => {
                           }}
                         >
                           <span style={{ color: "#666666", fontWeight: "500" }}>
-                            Time:
+                            Booked Time:
                           </span>
                           <span style={{ color: "#333333", fontWeight: "600" }}>
-                            {formatTimeForQR(order.orderDate)}
+                            {formatTimeForQR(order.createdAt)}
                           </span>
                         </div>
                         <div

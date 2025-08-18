@@ -57,11 +57,11 @@ const hasDashboardDataRef = React.useRef(false);
   const statCards = [
     { title: "TOTAL CANTEENS", value: countsData.totalCanteens },
     { title: "TOTAL ITEMS", value: countsData.totalItems },
-    { title: "TOTAL ORDERS", value: countsData.totalOrders },
-    { title: "TOTAL REVENUE", value: countsData.totalAmount !== null && countsData.totalAmount !== undefined ? `₹ ${countsData.totalAmount}` : "₹ 0" },
     { title: "TODAY'S ORDERS", value: countsData.todayOrders },
     { title: "TODAY'S REVENUE", value: countsData.todayRevenue !== null && countsData.todayRevenue !== undefined ? `₹ ${countsData.todayRevenue}` : "₹ 0" },
-
+    { title: "TOTAL ORDERS", value: countsData.totalOrders },
+    { title: "TOTAL REVENUE", value: countsData.totalAmount !== null && countsData.totalAmount !== undefined ? `₹ ${countsData.totalAmount}` : "₹ 0" },
+    
   ];
 
   const featureCards = [
