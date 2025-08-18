@@ -41,15 +41,14 @@ const hasDashboardDataRef = React.useRef(false);
   
 
   const handleCardClick = (cardName: string) => {
-    if (cardName === "Canteens") {
+    console.log("cardName",cardName)
+    if (cardName === "TOTAL CANTEENS" || cardName === "Canteens") {
       navigate("/canteens-list");
-    } else if (cardName === "Items") {
+    } else if (cardName === "TOTAL ITEMS" || cardName === "Items") {
       navigate("/items-list");
-    } else if (cardName === "Menu") {
+    } else if (cardName === "TOTAL MENU" || cardName === "Menu") {
       navigate("/menus-list");
-    } else if (cardName === "Orders") {
-      navigate("/orders");
-    }
+    } 
      else if (cardName === "Orders-info") {
       navigate("/Orders-info");
     }
@@ -59,7 +58,10 @@ const hasDashboardDataRef = React.useRef(false);
     { title: "TOTAL CANTEENS", value: countsData.totalCanteens },
     { title: "TOTAL ITEMS", value: countsData.totalItems },
     { title: "TOTAL ORDERS", value: countsData.totalOrders },
-    { title: "REVENUE", value: countsData.totalAmount !== null && countsData.totalAmount !== undefined ? `₹ ${countsData.totalAmount}` : "₹ 0" },
+    { title: "TOTAL REVENUE", value: countsData.totalAmount !== null && countsData.totalAmount !== undefined ? `₹ ${countsData.totalAmount}` : "₹ 0" },
+    { title: "TODAY'S ORDERS", value: countsData.todayOrders },
+    { title: "TODAY'S REVENUE", value: countsData.todayRevenue !== null && countsData.todayRevenue !== undefined ? `₹ ${countsData.todayRevenue}` : "₹ 0" },
+
   ];
 
   const featureCards = [
