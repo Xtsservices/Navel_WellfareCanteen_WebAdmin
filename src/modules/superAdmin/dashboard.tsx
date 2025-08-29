@@ -12,13 +12,23 @@ const { Title, Text } = Typography;
 const SuperAdminDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [countsData, setCountsData] = React.useState<any>({});
-const hasDashboardDataRef = React.useRef(false);
+  const [allUsers, setAllUsers] = React.useState<any[]>([]);
+  const hasDashboardDataRef = React.useRef(false);
 
   useEffect(() => {
     const getDashboardData = async () => {
       try {
         const response = await adminDashboardService.getDashboardMainCounts();
         setCountsData(response.data);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    const getAllUsers = async () => {
+      try {
+        const response = await adminDashboardService.getAllUsers();
+        setAllUsers(response.data);
       } catch (error) {
         console.log(error);
       }
@@ -36,6 +46,7 @@ const hasDashboardDataRef = React.useRef(false);
       if (!hasDashboardDataRef.current) {
         hasDashboardDataRef.current = true;
         getDashboardData()
+        getAllUsers()
       }
   },[])
   
@@ -52,6 +63,9 @@ const hasDashboardDataRef = React.useRef(false);
      else if (cardName === "Orders-info") {
       navigate("/Orders-info");
     }
+    else if (cardName === "TOTAL USERS") {
+      navigate("/allusers", { state: { allUsers } });
+    }
   };
 
   const statCards = [
@@ -61,7 +75,7 @@ const hasDashboardDataRef = React.useRef(false);
     { title: "TODAY'S REVENUE", value: countsData.todayRevenue !== null && countsData.todayRevenue !== undefined ? `₹ ${countsData.todayRevenue}` : "₹ 0" },
     { title: "TOTAL ORDERS", value: countsData.totalOrders },
     { title: "TOTAL REVENUE", value: countsData.totalAmount !== null && countsData.totalAmount !== undefined ? `₹ ${countsData.totalAmount}` : "₹ 0" },
-    
+    { title: "TOTAL USERS", value: allUsers.length },
   ];
 
   const featureCards = [

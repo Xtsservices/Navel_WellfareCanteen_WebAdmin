@@ -1,0 +1,290 @@
+/* AllUsersStyles.css */
+
+/* Main container styles */
+.all-users-container {
+  padding: 24px;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f3f3f6 0%, #efedf1 100%);
+}
+
+.content-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Card styles */
+.header-card {
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  border: none;
+}
+
+.table-card {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  border: none;
+}
+
+.no-data-card {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  border: none;
+  text-align: center;
+  padding: 40px 20px;
+}
+
+/* Title styles */
+.main-title {
+  margin: 0 !important;
+  color: #1890ff !important;
+  font-weight: bold;
+}
+
+.no-data-title {
+  text-align: center;
+  margin-bottom: 24px !important;
+  color: #1890ff !important;
+}
+
+/* Export button styles */
+.export-button {
+  background: linear-gradient(135deg, #52c41a, #389e0d) !important;
+  border-color: #52c41a !important;
+  box-shadow: 0 4px 12px rgba(82, 196, 26, 0.3) !important;
+  transition: all 0.3s ease !important;
+  font-weight: bold;
+  height: 44px;
+  padding: 0 24px;
+}
+
+.export-button:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 16px rgba(82, 196, 26, 0.4) !important;
+  background: linear-gradient(135deg, #389e0d, #237804) !important;
+}
+
+.export-button:focus {
+  background: linear-gradient(135deg, #52c41a, #389e0d) !important;
+  border-color: #52c41a !important;
+  box-shadow: 0 4px 12px rgba(82, 196, 26, 0.3) !important;
+}
+
+/* User statistic styles */
+.user-statistic {
+  margin-top: 8px;
+}
+
+.user-statistic .ant-statistic-title {
+  color: #666 !important;
+  font-weight: 500;
+}
+
+.user-statistic .ant-statistic-content {
+  color: #3f8600 !important;
+  font-size: 18px !important;
+  font-weight: bold;
+}
+
+/* Table styles */
+.users-table {
+  background-color: white;
+}
+
+.users-table .ant-table-thead > tr > th {
+  background: linear-gradient(135deg, #1890ff, #096dd9) !important;
+  color: white !important;
+  font-weight: bold !important;
+  border-bottom: 2px solid #0958d9 !important;
+  text-align: center;
+  font-size: 14px;
+}
+
+.users-table .ant-table-thead > tr > th::before {
+  display: none !important;
+}
+
+.users-table .ant-table-tbody > tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+.users-table .ant-table-tbody > tr:nth-child(odd) {
+  background-color: white;
+}
+
+.users-table .ant-table-tbody > tr:hover {
+  background-color: #e6f7ff !important;
+}
+
+.users-table .ant-table-tbody > tr > td {
+  padding: 16px;
+  vertical-align: middle;
+}
+
+/* Serial number tag styles */
+.serial-tag {
+  font-weight: bold !important;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 12px;
+}
+
+/* Mobile number styles */
+.mobile-available {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mobile-unavailable {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-dot {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  font-size: 16px;
+  line-height: 1;
+  width: auto !important;
+  height: auto !important;
+}
+
+.mobile-number {
+  color: #1890ff !important;
+  font-size: 14px;
+  font-weight: 600 !important;
+}
+
+.mobile-na {
+  color: #999 !important;
+  font-style: italic !important;
+  font-size: 14px;
+}
+
+/* Pagination styles */
+.users-table .ant-pagination {
+  margin-top: 24px !important;
+  text-align: center;
+}
+
+.users-table .ant-pagination .ant-pagination-item {
+  border-color: #1890ff;
+}
+
+.users-table .ant-pagination .ant-pagination-item-active {
+  background-color: #1890ff;
+  border-color: #1890ff;
+}
+
+.users-table .ant-pagination .ant-pagination-item-active a {
+  color: white;
+}
+
+.users-table .ant-pagination .ant-pagination-item:hover {
+  border-color: #1890ff;
+}
+
+.users-table .ant-pagination .ant-pagination-item:hover a {
+  color: #1890ff;
+}
+
+.users-table .ant-pagination .ant-pagination-prev:hover .ant-pagination-item-link,
+.users-table .ant-pagination .ant-pagination-next:hover .ant-pagination-item-link {
+  color: #1890ff;
+  border-color: #1890ff;
+}
+
+/* Alert styles for no data */
+.no-data-alert {
+  border-radius: 8px;
+  border: 2px solid #faad14;
+  background-color: #fffbe6;
+}
+
+.no-data-alert .ant-alert-message {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.no-data-alert .ant-alert-description {
+  font-size: 14px;
+  color: #666;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .all-users-container {
+    padding: 16px;
+  }
+  
+  .header-card .ant-row {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+  
+  .export-button {
+    width: 100%;
+    margin-top: 16px;
+  }
+  
+  .main-title {
+    font-size: 24px !important;
+  }
+  
+  .users-table .ant-table-tbody > tr > td {
+    padding: 12px 8px;
+    font-size: 12px;
+  }
+  
+  .mobile-number {
+    font-size: 12px !important;
+  }
+  
+  .serial-tag {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+}
+
+/* Loading spinner customization */
+.users-table .ant-spin-dot-item {
+  background-color: #1890ff;
+}
+
+/* Table border customization */
+.users-table .ant-table-bordered .ant-table-tbody > tr > td {
+  border-right: 1px solid #e8e8e8;
+}
+
+.users-table .ant-table-bordered .ant-table-thead > tr > th {
+  border-right: 1px solid #0958d9;
+}
+
+/* Hover effects for interactive elements */
+.users-table .ant-table-tbody > tr {
+  transition: background-color 0.2s ease;
+}
+
+.export-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.export-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.export-button:hover::before {
+  left: 100%;
+}

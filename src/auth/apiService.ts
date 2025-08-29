@@ -124,6 +124,8 @@ export const getCurrentUserData = {
   },
 }
 
+
+
 // Item API services
 export const itemService = {
   // Create a new item
@@ -328,8 +330,16 @@ export const adminDashboardService = {
       throw error;
     }
   },
+  getAllUsers: async () => {
+    try {
+      const response = await apiClient.get("/user/getAllUsers");
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      throw error;
+    }
+  },
 
- 
   // Get all orders with query params
 getAllOrders: async (params: {
   page?: number;
